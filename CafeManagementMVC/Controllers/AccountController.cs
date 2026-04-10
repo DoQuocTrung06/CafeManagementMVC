@@ -66,7 +66,7 @@ namespace CafeManagementMVC.Controllers
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 var principal = new ClaimsPrincipal(identity);
 
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                await HttpContext.SignInAsync("CookieAuth", principal);
 
                 // TC01 & TC02: Chuyển hướng theo Quyền
                 if (user.Role.RoleName == "Admin")
@@ -84,7 +84,7 @@ namespace CafeManagementMVC.Controllers
         // 3. Xử lý Đăng xuất
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Login", "Account");
         }
     }
