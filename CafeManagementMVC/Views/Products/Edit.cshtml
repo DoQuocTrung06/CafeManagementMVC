@@ -34,7 +34,7 @@
 
                     <div class="form-group mb-3">
                         <label asp-for="Price" class="form-label fw-bold mb-1">Giá tiền gốc - Size S (VNĐ)</label>
-                        <input asp-for="Price" id="BasePriceInput" type="number" class="form-control text-primary fw-bold" />
+                        <input name="Price" value="@(Model.Price.ToString("0"))" id="BasePriceInput" type="number" class="form-control text-primary fw-bold" />
                         <span asp-validation-for="Price" class="text-danger"></span>
                         <small class="text-muted italic">Lưu ý: Nhập giá cho Size S. Hệ thống tự tính Size M (x1.2) và L (x1.5)</small>
                     </div>
