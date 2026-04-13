@@ -47,12 +47,25 @@ namespace CafeManagementMVC.Controllers
             var order = await _context.Orders.FindAsync(id);
             if (order == null) return NotFound();
 
+            
+            if (order.Status == "Đã thanh toán")
+            {
+                TempData["ErrorMsg"] = "Không thể thay đổi đơn hàng đã hoàn tất thanh toán!";
+                return RedirectToAction(nameof(Details), new { id = order.OrderId });
+            }
+
+            
             order.Status = status;
 
-            // Nếu trạng thái là "Đã thanh toán", lưu lại thời gian để sau này tính Doanh thu
+            
             if (status == "Đã thanh toán")
             {
                 order.PaidAt = DateTime.Now;
+            }
+            else
+            {
+                
+                order.PaidAt = null;
             }
 
             await _context.SaveChangesAsync();
