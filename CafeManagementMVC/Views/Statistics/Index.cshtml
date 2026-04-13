@@ -1,0 +1,88 @@
+﻿@model CafeManagementMVC.Models.StatisticsVM
+
+@{
+    ViewData["Title"] = "Thống kê & Báo cáo";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <h2 class="mb-4 fw-bold">
+        <i class="bi bi-graph-up-arrow me-2"></i> Thống kê doanh thu
+    </h2>
+
+    <div class="mb-3">
+        <a asp-action="Index" asp-route-type="day"
+               class="btn btn-sm @(ViewBag.Type == "day" ? "btn-primary" : "btn-outline-primary")">
+            Theo ngày
+        </a>
+
+        <a asp-action="Index" asp-route-type="month"
+               class="btn btn-sm @(ViewBag.Type == "month" ? "btn-primary" : "btn-outline-primary")">
+            Theo tháng
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="fw-bold">Biểu đồ doanh thu</h5>
+            <div style="height:300px; position:relative;">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="fw-bold">Top 5 món bán chạy</h5>
+
+                    <ul class="list-group list-group-flush">
+                        @if (Model.TopProducts != null && Model.TopProducts.Any())
+                        {
+                            foreach (var item in Model.TopProducts)
+                            {
+                                <li class="list-group-item d-flex justify-content-between">
+                                    @item.ProductName
+                                    <span class="badge bg-primary">@item.TotalSold</span>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="list-group-item text-muted">Không có dữ liệu</li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('chart');
+
+        new Chart(ctx, {
+        type: 'line',
+        data: {
+        labels: @Html.Raw(Json.Serialize(Model.Labels ?? new List<string>())),
+        datasets: [{
+        label: 'Doanh thu (VNĐ)',
+        data: @Html.Raw(Json.Serialize(Model.Data ?? new List<decimal>())),
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3
+        }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+        }
+        });
+    </script>
+}

@@ -35,9 +35,9 @@
 
                     <div class="form-group mb-3">
                         <label asp-for="Price" class="form-label fw-bold mb-1">Giá tiền (VNĐ)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light fw-bold">₫</span>
+                        <div class="input-group">                            
                             <input name="Price" id="Price" type="number" placeholder="0" class="form-control text-primary fw-bold" data-baseprice="0" style="transition: transform 0.15s ease;" />
+                            <span class="input-group-text bg-light fw-bold">₫</span>
                         </div>
                         <span asp-validation-for="Price" class="text-danger small"></span>
                     </div>
