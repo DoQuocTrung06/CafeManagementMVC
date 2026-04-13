@@ -13,6 +13,9 @@ namespace CafeManagementMVC.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; } // Giá chốt lúc mua
 
+        [StringLength(10)]
+        public string Size { get; set; }
+
         public int OrderId { get; set; }
         [ForeignKey("OrderId")]
         public Order Order { get; set; }

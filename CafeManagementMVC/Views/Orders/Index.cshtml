@@ -1,0 +1,46 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="d-flex justify-content-between align-items-center mb-4 mt-2">
+    <h3 class="fw-bold text-primary">📋 QUẢN LÝ ĐƠN HÀNG</h3>
+</div>
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th class="ps-4">Mã Đơn</th>
+                    <th>Bàn</th>
+                    <th>Thời gian đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="ps-4 fw-bold">#@item.OrderId</td>
+                        <td><span class="badge bg-info text-dark">@(item.CafeTable?.TableName ?? "N/A")</span></td>
+                        <td>@item.CreatedAt.ToString("HH:mm dd/MM")</td>
+                        <td class="fw-bold text-danger">@item.TotalAmount.ToString("N0") ₫</td>
+                        <td>
+                            <span class="badge
+                                @(item.Status == "Chờ xác nhận" ? "bg-warning text-dark" :
+                                            item.Status == "Đã hủy" ? "bg-danger text-white" :
+                                            "bg-success text-white")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary fw-bold">👁️ Xem & Duyệt</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

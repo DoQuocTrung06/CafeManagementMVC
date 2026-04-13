@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Đặt món thành công";
+    Layout = null; // Tạm tắt layout của Admin/Web để hiển thị đẹp trên điện thoại
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt món thành công</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+        <div class="card shadow-sm border-0 text-center p-4" style="max-width: 400px; width: 100%;">
+            <div class="mb-4">
+                <span style="font-size: 80px;">✅</span>
+            </div>
+            <h2 class="text-success fw-bold mb-3">ĐẶT MÓN THÀNH CÔNG!</h2>
+            <p class="fs-5 text-secondary mb-2">Mã đơn hàng của bạn là:</p>
+            <h1 class="fw-bold text-dark mb-4">#@ViewBag.OrderId</h1>
+            <div class="alert alert-info" role="alert">
+                Vui lòng đợi trong giây lát, nhân viên sẽ mang đồ uống đến bàn cho bạn nhé!
+            </div>
+            <a href="/Home/Menu?tableId=1" class="btn btn-outline-primary mt-3 rounded-pill fw-bold w-100">
+                Lướt xem thêm Menu
+            </a>
+        </div>
+    </div>
+</body>
+</html>

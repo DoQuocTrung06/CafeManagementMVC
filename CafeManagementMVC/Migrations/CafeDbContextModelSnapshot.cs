@@ -17,7 +17,7 @@ namespace CafeManagementMVC.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -30,18 +30,15 @@ namespace CafeManagementMVC.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TableId"));
 
-                    b.Property<string>("QrCode")
+                    b.Property<string>("QRCodeUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TableId");
 
@@ -81,7 +78,6 @@ namespace CafeManagementMVC.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -123,6 +119,10 @@ namespace CafeManagementMVC.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Size")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.HasKey("OrderDetailId");
 
                     b.HasIndex("OrderId");
@@ -147,6 +147,9 @@ namespace CafeManagementMVC.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNew")
                         .HasColumnType("bit");
 
                     b.Property<decimal>("Price")
@@ -191,7 +194,6 @@ namespace CafeManagementMVC.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -220,7 +222,7 @@ namespace CafeManagementMVC.Migrations
             modelBuilder.Entity("CafeManagementMVC.Models.Order", b =>
                 {
                     b.HasOne("CafeManagementMVC.Models.CafeTable", "CafeTable")
-                        .WithMany("Orders")
+                        .WithMany()
                         .HasForeignKey("TableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -273,11 +275,6 @@ namespace CafeManagementMVC.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("CafeManagementMVC.Models.CafeTable", b =>
-                {
-                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("CafeManagementMVC.Models.Category", b =>

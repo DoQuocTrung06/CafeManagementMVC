@@ -1,0 +1,37 @@
+﻿@model CafeManagementMVC.Models.CafeTable
+
+@{
+    Layout = null; // Không lấy layout để tránh hiện 2 lần menu
+}
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    
+    <input type="hidden" asp-for="TableId" />
+    <input type="hidden" asp-for="QRCodeUrl" />
+
+    <div class="form-group mb-3">
+        <label asp-for="TableName" class="control-label fw-bold">Tên bàn</label>
+        <input asp-for="TableName" class="form-control" />
+        <span asp-validation-for="TableName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Status" class="control-label fw-bold">Trạng thái</label>
+        <select asp-for="Status" class="form-select">
+            <option value="Trống">Trống</option>
+            <option value="Có khách">Có khách</option>
+            <option value="Đã đặt">Đã đặt</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+
+    <div class="modal-footer px-0 pb-0 mt-3">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    </div>
+</form>
+
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}

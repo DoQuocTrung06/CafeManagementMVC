@@ -1,0 +1,96 @@
+﻿@model CafeManagementMVC.Models.Product
+
+@{
+    ViewData["Title"] = "Chi tiết món";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h3 class="fw-bold text-info">ℹ️ CHI TIẾT THỰC ĐƠN</h3>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">
+        🔙 Quay lại
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                
+                <div class="row mb-3 align-items-center">
+                    <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.ProductName" class="img-fluid rounded-3 shadow-sm border" style="max-height: 140px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border border-dashed" style="height: 120px;">
+                                <span class="text-muted small">Không có ảnh</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <table class="table table-borderless table-sm mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="text-muted w-25 align-middle">Tên món:</th>
+                                    <td class="fw-bold fs-5 text-dark">@Model.ProductName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle">Danh mục:</th>
+                                    <td class="fw-bold text-primary">@Model.Category?.CategoryName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle">Giá Size S:</th>
+                                    <td class="fw-bold text-danger">@Model.Price.ToString("N0") ₫</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-top pt-2">Giá Size lớn:</th>
+                                    <td class="pt-2">
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="badge border text-dark text-start fw-normal" style="background-color: #f8f9fa;">
+                                                Size M (x1.2): <span class="text-danger fw-bold">@((Convert.ToDouble(Model.Price) * 1.2).ToString("N0")) ₫</span>
+                                            </span>
+                                            <span class="badge border text-dark text-start fw-normal" style="background-color: #f8f9fa;">
+                                                Size L (x1.5): <span class="text-danger fw-bold">@((Convert.ToDouble(Model.Price) * 1.5).ToString("N0")) ₫</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle pt-3">Trạng thái:</th>
+                                    <td class="pt-3">
+                                        @if (Model.IsAvailable)
+                                        {
+                                            <span class="badge bg-success px-2 py-1">Đang bán</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary px-2 py-1">Ngừng bán</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="text-muted opacity-25" />
+
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-action="Edit" asp-route-id="@Model?.ProductId" class="btn btn-warning fw-bold flex-grow-1 shadow-sm py-2 text-dark">
+                        ✏️ Chỉnh sửa
+                    </a>
+                    <a asp-action="Index" class="btn btn-outline-secondary fw-bold flex-grow-1 py-2">
+                        🔙 Về danh sách
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

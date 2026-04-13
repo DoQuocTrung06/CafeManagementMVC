@@ -1,0 +1,74 @@
+﻿@model CafeManagementMVC.Models.CafeTable
+
+@{
+    ViewData["Title"] = "Thêm bàn mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark">🪑 THÊM BÀN MỚI</h2>
+        <p class="text-muted">Tạo bàn phục vụ trong hệ thống quán cà phê</p>
+    </div>
+
+    <!-- Center form -->
+    <div class="d-flex justify-content-center">
+
+        <div class="col-xl-4 col-lg-5 col-md-7 col-sm-12">
+
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4">
+
+                    <form asp-action="Create">
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+                        <!-- Table name -->
+                        <div class="mb-3">
+                            <label asp-for="TableName" class="form-label fw-semibold">
+                                Tên bàn
+                            </label>
+
+                            <input asp-for="TableName"
+                                   class="form-control form-control-lg"
+                                   placeholder="Ví dụ: Bàn 01, VIP 02..." />
+
+                            <span asp-validation-for="TableName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label fw-semibold">
+                                Trạng thái
+                            </label>
+
+                            <select asp-for="Status" class="form-select form-select-lg">
+                                <option value="Trống">🟢 Trống</option>
+                                <option value="Có khách">🔴 Có khách</option>
+                                <option value="Đã đặt">🟡 Đã đặt</option>
+                            </select>
+
+                            <span asp-validation-for="Status" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                                ➕ Tạo bàn mới
+                            </button>
+
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                Quay lại
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

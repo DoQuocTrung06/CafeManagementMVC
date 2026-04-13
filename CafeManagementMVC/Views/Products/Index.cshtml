@@ -1,0 +1,127 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.Product>
+
+@{
+    ViewData["Title"] = "Quản lý Thực đơn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .product-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: transform 0.2s;
+        background-color: #fff;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    .product-img-wrapper {
+        position: relative;
+        background-color: #1a1a1a; /* Nền đen như ảnh */
+        text-align: center;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .product-img-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: cover;
+    }
+    .badge-new {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #e50000;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.75rem;
+    }
+    .badge-hot {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #ff4d4d;
+        font-weight: 900;
+        font-size: 0.9rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    .product-info {
+        background-color: #d32f2f; /* Màu đỏ đô phần thông tin */
+        color: white;
+        text-align: center;
+        padding: 15px 10px;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .product-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+    }
+    .product-price {
+        text-align: center;
+        padding: 12px;
+        font-weight: 900;
+        font-size: 1.2rem;
+        color: #333;
+        background-color: #fff;
+    }
+    .action-buttons {
+        text-align: center;
+        padding-bottom: 15px;
+        background-color: #fff;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">☕ DANH SÁCH THỰC ĐƠN</h2>
+    <a asp-action="Create" class="btn btn-danger fw-bold"><i class="bi bi-plus-circle"></i> Thêm món mới</a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+    @foreach (var item in Model) {
+        <div class="col">
+            <div class="card product-card @(item.IsAvailable ? "" : "opacity-50")"> 
+                <div class="product-img-wrapper">
+                    @if (!item.IsAvailable)
+                    {
+                        <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.6); z-index: 10;">
+                            <h4 class="text-white fw-bold mb-0">HẾT HÀNG</h4>
+                        </div>
+                    }
+        
+                    @if (item.IsNew)
+                    {
+                        <span class="badge-new">NEW</span>
+                    }
+                    
+                    <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : item.ImageUrl)" alt="@item.ProductName">
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-title">@item.ProductName</div>
+                    <small class="text-light opacity-75">@item.Category.CategoryName</small>
+                </div>
+                
+                <div class="product-price">
+                    @item.Price.ToString("N0") vnđ
+                </div>
+                
+                <div class="action-buttons">
+                    <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Sửa</a>
+                    <a asp-action="Details" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i> Xem</a>
+                    <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Xóa</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

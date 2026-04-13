@@ -7,15 +7,14 @@ namespace CafeManagementMVC.Models
         [Key]
         public int TableId { get; set; }
 
-        [Required]
-        [StringLength(50)]
+        [Required(ErrorMessage = "Tên bàn không được để trống")]
+        [Display(Name = "Tên bàn/Số bàn")]
         public string TableName { get; set; }
 
-        [StringLength(50)]
-        public string Status { get; set; } = "Trống";
+        [Display(Name = "Trạng thái")]
+        public string Status { get; set; } = "Trống"; 
 
-        public string QrCode { get; set; }
-
-        public ICollection<Order> Orders { get; set; }
+        [Display(Name = "Mã QR")]
+        public string QRCodeUrl { get; set; } 
     }
 }

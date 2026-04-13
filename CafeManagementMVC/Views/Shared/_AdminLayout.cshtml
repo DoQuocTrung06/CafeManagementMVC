@@ -26,20 +26,24 @@
                 <h4>Admin Cafe</h4>
             </div>
             <ul class="list-unstyled components">
-                <li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")">
+                @{
+                    var currentController = ViewContext.RouteData.Values["Controller"]?.ToString();
+                }
+
+                <li class="@(currentController == "Home" ? "active" : "")">
                     <a href="/Home/Index"><i class="bi bi-speedometer2 me-2"></i> Tổng quan</a>
                 </li>
-                <li>
-                    <a href="#"><i class="bi bi-tag me-2"></i> Danh mục</a>
+                <li class="@(currentController == "Categories" ? "active" : "")">
+                    <a href="/Categories"><i class="bi bi-tag me-2"></i> Danh mục</a>
                 </li>
-                <li>
-                    <a href="#"><i class="bi bi-cup-hot me-2"></i> Sản phẩm</a>
+                <li class="@(currentController == "Products" ? "active" : "")">
+                    <a href="/Products"><i class="bi bi-cup-hot me-2"></i> Sản phẩm</a>
                 </li>
-                <li>
-                    <a href="#"><i class="bi bi-table me-2"></i> Quản lý bàn</a>
+                <li class="@(currentController == "CafeTables" ? "active" : "")">
+                    <a href="/CafeTables"><i class="bi bi-table me-2"></i> Quản lý bàn</a>
                 </li>
-                <li>
-                    <a href="#"><i class="bi bi-cart-check me-2"></i> Đơn hàng</a>
+                <li class="@(currentController == "Orders" ? "active" : "")">
+                    <a href="/Orders"><i class="bi bi-cart-check me-2"></i> Đơn hàng</a>
                 </li>
                 <hr>
                 <li>

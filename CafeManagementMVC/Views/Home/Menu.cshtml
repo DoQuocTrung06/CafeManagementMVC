@@ -1,0 +1,271 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.Product>
+
+@{
+    ViewData["Title"] = "Thực Đơn";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<style>
+    body {
+        background-color: #f4f6f9; /* Nền xám nhạt giúp card nổi bật hơn */
+    }
+
+    /* Thiết kế thẻ sản phẩm */
+    .menu-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: #fff;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .menu-card:active {
+            transform: scale(0.96);
+        }
+
+    /* Khung hình ảnh */
+    .img-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Tỉ lệ 1:1 Vuông vức */
+        background-color: #f8f9fa;
+        overflow: hidden;
+    }
+
+        .img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* Nhãn MỚI */
+    .badge-hot {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 900;
+        z-index: 2;
+        box-shadow: 0 2px 4px rgba(255, 75, 43, 0.4);
+    }
+
+    /* Lớp phủ Hết hàng */
+    .out-of-stock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: grayscale(100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    /* Nút chọn số lượng */
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50% !important;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .qty-input {
+        border: none !important;
+        background: transparent !important;
+        font-weight: bold;
+        font-size: 1.1rem;
+        width: 40px;
+        text-align: center;
+    }
+
+    /* Ẩn mũi tên của input number */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+
+<div class="sticky-top bg-white shadow-sm py-3 px-3 mb-4 rounded-bottom-4" style="z-index: 1000;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h4 class="mb-0 fw-bold text-primary">☕ Menu Của Quán</h4>
+            <small class="text-muted">Mời bạn chọn món nhé!</small>
+        </div>
+        <div class="text-end">
+            <div class="badge bg-danger fs-6 px-3 py-2 rounded-pill shadow-sm">
+                Bàn số: @ViewBag.TableId
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-2 pb-5">
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 g-md-3">
+
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="menu-card">
+
+                    <div class="img-wrapper">
+                        @if (!item.IsAvailable)
+                        {
+                            <div class="out-of-stock-overlay">
+                                <span class="badge bg-dark fs-6 px-3 py-2 rounded-pill">HẾT MÓN</span>
+                            </div>
+                        }
+
+                        @if (item.IsNew)
+                        {
+                            <span class="badge-hot">MỚI 🔥</span>
+                        }
+
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : item.ImageUrl)" alt="@item.ProductName" />
+                    </div>
+
+                    <div class="p-2 d-flex flex-column flex-grow-1">
+                        <small class="text-muted" style="font-size: 0.75rem;">@item.Category?.CategoryName</small>
+                        <div class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.95rem;">@item.ProductName</div>
+                        
+                        <div class="text-danger fw-bold mb-2 product-price-display" data-baseprice="@item.Price">
+                            @item.Price.ToString("N0") ₫
+                        </div>
+
+                        <div class="mt-auto">
+                            @if (item.IsAvailable)
+                            {
+                                <form method="post" action="/Home/AddToCart" class="add-to-cart-form">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <input type="hidden" name="tableId" value="@ViewBag.TableId" />
+                                    <input type="hidden" name="size" value="S" class="selected-size" />
+
+                                    <div class="d-flex gap-1 mb-2">
+                                        <button type="button" class="btn btn-sm btn-dark flex-grow-1 size-btn text-white" data-size="S" data-multiplier="1">S</button>
+                                        <button type="button" class="btn btn-sm btn-outline-dark flex-grow-1 size-btn" data-size="M" data-multiplier="1.2">M</button>
+                                        <button type="button" class="btn btn-sm btn-outline-dark flex-grow-1 size-btn" data-size="L" data-multiplier="1.5">L</button>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-2 bg-light rounded-pill p-1">
+                                        <button type="button" class="btn btn-outline-secondary qty-btn btn-minus">➖</button>
+                                        <input type="number" name="quantity" value="1" min="1" max="20" class="form-control form-control-sm qty-input" readonly />
+                                        <button type="button" class="btn btn-outline-secondary qty-btn btn-plus">➕</button>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold" style="font-size: 0.9rem;">
+                                        🛒 Đặt món
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary w-100 rounded-pill fw-bold" disabled style="font-size: 0.9rem;">
+                                    Đã hết
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </div>
+</div>
+
+@if (TempData["SuccessMsg"] != null)
+{
+    <div class="position-fixed top-0 start-50 translate-middle-x mt-3 w-100 px-3" style="z-index: 1050; max-width: 540px;">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm text-center fw-bold rounded-pill" role="alert">
+            @TempData["SuccessMsg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
+        </div>
+    </div>
+}
+
+<a href="/Home/Cart?tableId=@ViewBag.TableId" class="btn btn-warning position-fixed rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="bottom: 30px; right: 20px; width: 65px; height: 65px; z-index: 1000; border: 3px solid #fff;">
+    <span style="font-size: 1.8rem;">🛒</span>
+</a>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // 1. TỰ ĐỘNG TẮT THÔNG BÁO SAU 3 GIÂY
+            const alertBox = document.querySelector('.alert');
+            if (alertBox) {
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                    setTimeout(() => alertBox.remove(), 150);
+                }, 3000);
+            }
+
+            // 2. XỬ LÝ CHỌN SIZE VÀ ĐỔI GIÁ TIỀN
+            document.querySelectorAll('.menu-card').forEach(card => {
+                const sizeBtns = card.querySelectorAll('.size-btn');
+                const priceDisplay = card.querySelector('.product-price-display');
+                const hiddenSizeInput = card.querySelector('.selected-size');
+                const basePrice = parseFloat(priceDisplay.dataset.baseprice);
+
+                sizeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Đổi màu nút được chọn
+                        sizeBtns.forEach(b => {
+                            b.classList.remove('btn-dark', 'text-white');
+                            b.classList.add('btn-outline-dark');
+                        });
+                        btn.classList.remove('btn-outline-dark');
+                        btn.classList.add('btn-dark', 'text-white');
+
+                        // Cập nhật thẻ input ẩn để gửi lên Controller
+                        hiddenSizeInput.value = btn.dataset.size;
+
+                        // Tính lại giá và hiển thị (định dạng phân cách hàng nghìn vi-VN)
+                        const multiplier = parseFloat(btn.dataset.multiplier);
+                        const newPrice = Math.round(basePrice * multiplier);
+                        priceDisplay.innerText = newPrice.toLocaleString('vi-VN') + ' ₫';
+                    });
+                });
+            });
+
+            // 3. XỬ LÝ NÚT TĂNG/GIẢM SỐ LƯỢNG MƯỢT MÀ
+            document.querySelectorAll('.add-to-cart-form').forEach(form => {
+                const btnMinus = form.querySelector('.btn-minus');
+                const btnPlus = form.querySelector('.btn-plus');
+                const inputQty = form.querySelector('.qty-input');
+
+                btnMinus.addEventListener('click', () => {
+                    let qty = parseInt(inputQty.value);
+                    if (qty > 1) {
+                        inputQty.value = qty - 1;
+                    }
+                });
+
+                btnPlus.addEventListener('click', () => {
+                    let qty = parseInt(inputQty.value);
+                    if (qty < 20) {
+                        inputQty.value = qty + 1;
+                    }
+                });
+            });
+        });
+    </script>
+}

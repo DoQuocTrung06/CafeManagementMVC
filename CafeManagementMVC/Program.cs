@@ -23,7 +23,7 @@ builder.Services.AddAuthentication("CookieAuth")
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddSession();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -39,6 +39,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+app.UseSession();
 // =======================================================
 // 3. KÍCH HOẠT AUTHENTICATION (Bắt buộc phải nằm TRƯỚC UseAuthorization)
 // =======================================================

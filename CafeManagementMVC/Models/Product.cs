@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CafeManagementMVC.Models
@@ -16,12 +17,18 @@ namespace CafeManagementMVC.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public string ImageUrl { get; set; } 
+        public string ImageUrl { get; set; }
+
+        [NotMapped]
+        public IFormFile ImageUpload { get; set; }
 
         public bool IsAvailable { get; set; } = true;
 
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
+
+        public bool IsNew { get; set; } = false;
+
     }
 }

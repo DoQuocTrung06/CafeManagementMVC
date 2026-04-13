@@ -1,0 +1,88 @@
+﻿@model CafeManagementMVC.Models.Product
+
+@{
+    ViewData["Title"] = "Xóa món";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h3 class="fw-bold text-danger">🗑️ XÓA THỰC ĐƠN</h3>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">
+        🔙 Quay lại
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        
+        <div class="card shadow-sm border-danger rounded-3">
+            <div class="card-header bg-danger text-white text-center py-3">
+                <h5 class="mb-0 fw-bold">⚠️ BẠN CÓ CHẮC CHẮN MUỐN XÓA MÓN NÀY?</h5>
+                <small>Hành động này không thể khôi phục lại!</small>
+            </div>
+            <div class="card-body p-4">
+                
+                <div class="row mb-3 align-items-center">
+                    <div class="col-sm-4 text-center mb-3 mb-sm-0">
+                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.ProductName" class="img-fluid rounded-3 shadow-sm border" style="max-height: 140px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-light rounded-3 d-flex align-items-center justify-content-center border border-dashed" style="height: 120px;">
+                                <span class="text-muted small">Không có ảnh</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="col-sm-8">
+                        <table class="table table-borderless table-sm mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="text-muted w-25 align-middle">Tên món:</th>
+                                    <td class="fw-bold fs-5 text-dark">@Model.ProductName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle">Danh mục:</th>
+                                    <td class="fw-bold text-primary">@Model.Category?.CategoryName</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle">Giá bán:</th>
+                                    <td class="fw-bold text-danger">@Model.Price.ToString("N0") ₫</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted align-middle">Trạng thái:</th>
+                                    <td>
+                                        @if (Model.IsAvailable)
+                                        {
+                                            <span class="badge bg-success px-2 py-1">Đang bán</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary px-2 py-1">Ngừng bán</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <hr class="text-muted opacity-25" />
+
+                <form asp-action="Delete" class="d-flex gap-2 mt-4">
+                    <input type="hidden" asp-for="ProductId" />
+                    <button type="submit" class="btn btn-danger fw-bold flex-grow-1 shadow-sm py-2">
+                        🗑️ Có, Xóa ngay!
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary fw-bold flex-grow-1 py-2">
+                        ❌ Không, Hủy bỏ
+                    </a>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>

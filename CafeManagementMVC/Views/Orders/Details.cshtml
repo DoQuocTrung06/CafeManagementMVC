@@ -1,0 +1,80 @@
+﻿@model CafeManagementMVC.Models.Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h3 class="fw-bold text-info">ℹ️ CHI TIẾT ĐƠN #@Model.OrderId</h3>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">🔙 Quay lại</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <h5 class="fw-bold border-bottom pb-2">Thông tin chung</h5>
+                <p><b>Bàn:</b> @Model.CafeTable?.TableName</p>
+                <p><b>Thời gian:</b> @Model.CreatedAt.ToString("HH:mm:ss dd/MM/yyyy")</p>
+                <p>
+                    <b>Trạng thái:</b> 
+                    <span class="badge 
+                        @(Model.Status == "Chờ xác nhận" ? "bg-warning text-dark" :
+                          Model.Status == "Đã hủy" ? "bg-danger text-white" :
+                          Model.Status == "Đã thanh toán" ? "bg-success text-white" :
+                          "bg-info text-white")">
+                        @Model.Status
+                    </span>
+                </p>
+                <hr />
+                <h5 class="text-danger fw-bold text-center">TỔNG: @Model.TotalAmount.ToString("N0") ₫</h5>
+                
+                <form asp-action="UpdateStatus" method="post" class="mt-4">
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    <label class="fw-bold mb-2">Cập nhật trạng thái đơn:</label>
+                    <select name="status" class="form-select mb-3">
+                        <option value="Chờ xác nhận">Chờ xác nhận</option>
+                        <option value="Đang phục vụ">Đang phục vụ</option>
+                        <option value="Đã thanh toán" class="text-success fw-bold">Đã thanh toán</option>
+                        <option value="Đã hủy" class="text-danger">Đã hủy</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">💾 CẬP NHẬT</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Món ăn</th>
+                            <th>Size</th>
+                            <th>SL</th>
+                            <th class="text-end pe-3">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@item.Product.ImageUrl" style="width:40px;height:40px;object-fit:cover" class="rounded me-2" />
+                                        <b>@item.Product.ProductName</b>
+                                    </div>
+                                </td>
+                                <td><span class="badge border text-dark">@item.Size</span></td>
+                                <td>x @item.Quantity</td>
+                                <td class="text-end pe-3">@((item.Price * item.Quantity).ToString("N0")) ₫</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

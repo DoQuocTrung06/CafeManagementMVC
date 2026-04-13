@@ -1,0 +1,60 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.Category>
+
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">📁 DANH MỤC</h2>
+    <a asp-action="Create" class="btn btn-primary fw-bold">+ Thêm danh mục</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Tên danh mục</th>
+                    <th style="width:200px;" class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">
+                            @item.CategoryName
+                        </td>
+
+                        <td class="text-center">
+
+                            <a asp-action="Edit"
+                                   asp-route-id="@item.CategoryId"
+                                   class="btn btn-sm btn-outline-warning">
+                                Sửa
+                            </a>
+
+                            <a asp-action="Details"
+                                   asp-route-id="@item.CategoryId"
+                                   class="btn btn-sm btn-outline-info">
+                                Chi tiết
+                            </a>
+
+                            <a asp-action="Delete"
+                                   asp-route-id="@item.CategoryId"
+                                   class="btn btn-sm btn-outline-danger">
+                                Xóa
+                            </a>
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+
+    </div>
+</div>

@@ -1,0 +1,122 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.CafeTable>
+
+@{
+    ViewData["Title"] = "Quản lý bàn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">🪑 DANH SÁCH BÀN</h2>
+    <a asp-action="Create" class="btn btn-primary fw-bold">+ Thêm bàn mới</a>
+</div>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm text-center">
+
+                <div class="card-header bg-dark text-white fw-bold">
+                    @item.TableName
+                </div>
+
+                <div class="card-body">
+
+                    @if (!string.IsNullOrEmpty(item.QRCodeUrl))
+                    {
+                        <img src="@item.QRCodeUrl"
+                             class="img-fluid mb-2"
+                             style="max-width: 150px;" />
+
+                        <br />
+
+                        <a href="@item.QRCodeUrl"
+                               download="QR_@item.TableName"
+                               class="btn btn-sm btn-link">
+                            Tải mã QR
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted small">Chưa có mã QR</p>
+                    }
+
+                    <div class="mt-2">
+                        <span class="badge @(item.Status == "Trống" ? "bg-success" : "bg-danger")">
+                            @item.Status
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="card-footer bg-white">
+
+                    <button class="btn btn-sm btn-outline-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editModal"
+                            onclick="loadEdit(@item.TableId)">
+                        Sửa
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal"
+                            onclick="setDelete(@item.TableId)">
+                        Xóa
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ================= EDIT MODAL ================= -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa bàn</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="editContent">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ================= DELETE MODAL ================= -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+
+            <h5>Bạn có chắc muốn xóa bàn này?</h5>
+
+            <form id="deleteForm" method="post">
+                <button type="submit" class="btn btn-danger">Xóa</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Hủy
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadEdit(id) {
+        fetch('/CafeTables/Edit/' + id)
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById('editContent').innerHTML = html;
+            });
+    }
+
+    function setDelete(id) {
+        document.getElementById('deleteForm').action = '/CafeTables/Delete/' + id;
+    }
+</script>
