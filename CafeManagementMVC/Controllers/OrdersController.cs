@@ -102,14 +102,16 @@ namespace CafeManagementMVC.Controllers
                 order.PaidAt = null;
             }
 
-            await _context.SaveChangesAsync();
-            TempData["SuccessMsg"] = "Cập nhật trạng thái đơn hàng thành công!";
-
-            return RedirectToAction(nameof(Details), new { id = order.OrderId });
             if (status == "Đã hủy")
             {
                 order.PaidAt = null;
             }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMsg"] = "Cập nhật trạng thái đơn hàng thành công!";
+
+            return RedirectToAction(nameof(Details), new { id = order.OrderId });
+            
         }
     }
 }

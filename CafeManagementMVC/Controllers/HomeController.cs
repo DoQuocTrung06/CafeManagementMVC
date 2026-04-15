@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore; // Thêm để dùng Include()
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using CafeManagementMVC.Extensions;
 
 namespace CafeManagementMVC.Controllers
 {
@@ -225,5 +225,50 @@ namespace CafeManagementMVC.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        [AllowAnonymous] // RẤT QUAN TRỌNG: Thêm dòng này để khách vãng lai dùng được
+        public IActionResult ChangeCartItemSize(int productId, string oldSize, string newSize, int tableId)
+        {
+            // 1. Sử dụng hàm GetCartItems() có sẵn của bạn để đảm bảo lấy đúng Session
+            var cart = GetCartItems();
+
+            // 2. Tìm món nước khách muốn đổi size
+            var item = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == oldSize);
+
+            if (item != null)
+            {
+                // 3. Tìm lại giá GỐC (Size S) dựa vào giá hiện tại của món
+                decimal basePrice = item.Price;
+                if (oldSize == "M") basePrice = item.Price / 1.2m;
+                if (oldSize == "L") basePrice = item.Price / 1.5m;
+
+                // 4. Tính giá MỚI theo Size mới khách vừa chọn
+                decimal newPrice = basePrice;
+                if (newSize == "M") newPrice = basePrice * 1.2m;
+                if (newSize == "L") newPrice = basePrice * 1.5m;
+
+                // 5. Cập nhật vào item
+                item.Size = newSize;
+                item.Price = Math.Round(newPrice);
+
+                // (Tùy chọn): Nếu khách đổi sang size L, mà trong giỏ ĐÃ CÓ SẴN ly size L đó rồi, 
+                // thì gộp số lượng lại làm 1 dòng cho gọn
+                var existingItem = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == newSize && c != item);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += item.Quantity;
+                    cart.Remove(item); // Xóa dòng cũ đi
+                }
+
+                // 6. Lưu giỏ hàng lại bằng hàm SaveCartSession có sẵn của bạn
+                SaveCartSession(cart);
+            }
+
+            // Load lại trang giỏ hàng
+            return RedirectToAction("Cart", new { tableId = tableId });
+        }
+
+            
     }
 }

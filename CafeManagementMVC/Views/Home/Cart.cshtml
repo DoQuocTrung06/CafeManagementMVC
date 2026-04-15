@@ -8,18 +8,43 @@
 
 <style>
     body {
-        background-color: #f4f6f9;
+        background-color: #f4f6f9; /* Đồng bộ nền với Menu */
+    }
+
+    /* Thiết kế thẻ giỏ hàng đồng bộ với Menu */
+    .cart-card {
+        border: none;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        background-color: #fff;
+        transition: transform 0.2s ease;
+    }
+
+    /* Nút số lượng bo tròn đồng bộ */
+    .qty-btn-cart {
+        width: 28px;
+        height: 28px;
+        border-radius: 50% !important;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
     }
 </style>
 
-<div class="sticky-top bg-white shadow-sm py-3 px-3 mb-3 rounded-bottom-4">
+<div class="sticky-top bg-white shadow-sm py-3 px-3 mb-4 rounded-bottom-4" style="z-index: 1000;">
     <div class="d-flex justify-content-between align-items-center">
-        <a href="/Home/Menu?tableId=@ViewBag.TableId" class="text-decoration-none text-dark fs-4">
-            🔙
+        <a href="/Home/Menu?tableId=@ViewBag.TableId" class="text-decoration-none fw-bold fs-4" style="color: #6c757d;">
+            <i class="bi bi-chevron-left"></i> 🔙
         </a>
-        <h4 class="mb-0 fw-bold text-primary">🛒 Giỏ Hàng</h4>
+        <div class="text-center">
+            <h4 class="mb-0 fw-bold text-primary">🛒 Giỏ Hàng</h4>
+            <small class="text-muted">Kiểm tra lại món nhé!</small>
+        </div>
         <div class="badge bg-danger fs-6 px-3 py-2 rounded-pill shadow-sm">
-            Bàn: @ViewBag.TableId
+            Bàn số: @ViewBag.TableId
         </div>
     </div>
 </div>
@@ -27,94 +52,136 @@
 <div class="container-fluid px-3 pb-5">
     @if (Model == null || !Model.Any())
     {
-        <div class="text-center mt-5">
-            <h1 class="display-1 text-muted opacity-25 mb-3">🛒</h1>
-            <h5 class="text-muted fw-bold">Giỏ hàng đang trống</h5>
-            <p class="text-muted small">Bạn chưa chọn món nào cả. Hãy quay lại thực đơn nhé!</p>
-            <a href="/Home/Menu?tableId=@ViewBag.TableId" class="btn btn-primary rounded-pill px-4 py-2 mt-2 fw-bold shadow-sm">
-                🍽️ Xem Thực Đơn
+        <div class="d-flex flex-column align-items-center justify-content-center text-center mt-5 px-4">
+            <img src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png" alt="Empty Cart" style="width: 120px; opacity: 0.7; margin-bottom: 20px;" />
+            <h5 class="fw-bold text-dark mb-2">Giỏ hàng đang trống</h5>
+            <p class="text-muted small mb-4">Bạn chưa chọn món nào cả. Hãy quay lại thực đơn và chọn món nước yêu thích nhé!</p>
+            <a href="/Home/Menu?tableId=@ViewBag.TableId" class="btn btn-primary rounded-pill px-5 py-2 fw-medium shadow-sm">
+                🍽️ Khám phá Menu
             </a>
         </div>
     }
     else
     {
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-3">
-                
-                @foreach (var item in Model)
-                {
-                    <div class="card shadow-sm border-0 mb-3 rounded-4">
-                        <div class="card-body p-3 d-flex align-items-center">
-            
-                            <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : item.ImageUrl)"
-                                 class="rounded-3 shadow-sm object-fit-cover"
-                                 style="width: 70px; height: 70px;" alt="@item.ProductName" />
+        <div class="d-flex flex-column gap-3 mb-4">
+            @foreach (var item in Model)
+            {
+                <div class="cart-card p-3 d-flex align-items-stretch">
+                    <div class="position-relative">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : item.ImageUrl)"
+                             class="rounded-3 shadow-sm object-fit-cover"
+                             style="width: 80px; height: 80px;" alt="@item.ProductName" />
+                    </div>
 
-                            <div class="ms-3 flex-grow-1">
-                                <h6 class="mb-1 fw-bold text-dark text-truncate" style="max-width: 150px;">@item.ProductName</h6>
-                                <div class="text-muted small mb-1">
-                                    Size: <span class="badge bg-secondary">@item.Size</span> | @item.Price.ToString("N0") ₫
-                                </div>
-                
-                                <div class="d-flex align-items-center mt-1">
-                                    <form method="post" action="/Home/UpdateQuantity" class="m-0 p-0">
-                                        <input type="hidden" name="productId" value="@item.ProductId" />
-                                        <input type="hidden" name="size" value="@item.Size" />
-                                        <input type="hidden" name="tableId" value="@ViewBag.TableId" />
-                                        <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
-                                        <button type="submit" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                style="width: 26px; height: 26px; padding: 0;" @(item.Quantity <= 1 ? "disabled" : "")>
-                                            <b>-</b>
-                                        </button>
-                                    </form>
+                    <div class="ms-3 flex-grow-1 d-flex flex-column justify-content-between">
+                        
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-0 fw-bold text-dark text-truncate pe-2" style="max-width: 160px; font-size: 1rem;">@item.ProductName</h6>
+                            
+                            <form method="post" action="/Home/RemoveFromCart" class="m-0 p-0">
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <input type="hidden" name="size" value="@item.Size" />
+                                <input type="hidden" name="tableId" value="@ViewBag.TableId" />
+                                <button type="button" class="btn btn-link text-danger p-0 m-0 text-decoration-none" onclick="confirmDelete(event, this.form)">
+                                    🗑️
+                                </button>
+                            </form>
+                        </div>
 
-                                    <span class="mx-2 fw-bold text-danger">@item.Quantity</span>
+                        <div class="d-flex align-items-center mt-1 gap-2">
+                            <form asp-controller="Home" asp-action="ChangeCartItemSize" method="post" style="margin: 0; padding: 0;">
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <input type="hidden" name="oldSize" value="@item.Size" />
+    
+                                <input type="hidden" name="tableId" value="@ViewBag.TableId" />
 
-                                    <form method="post" action="/Home/UpdateQuantity" class="m-0 p-0">
-                                        <input type="hidden" name="productId" value="@item.ProductId" />
-                                        <input type="hidden" name="size" value="@item.Size" />
-                                        <input type="hidden" name="tableId" value="@ViewBag.TableId" />
-                                        <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
-                                        <button type="submit" class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center"
-                                                style="width: 26px; height: 26px; padding: 0;">
-                                            <b>+</b>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                                <select name="newSize" class="form-select form-select-sm border-0 bg-light rounded-pill ps-2 pe-4 py-1 fw-bold text-dark shadow-none"
+                                        style="width: 90px; cursor: pointer; font-size: 0.85rem;" onchange="this.form.submit()">
+                                    <option value="S" selected="@(item.Size == "S" ? "selected" : null)">Size S</option>
+                                    <option value="M" selected="@(item.Size == "M" ? "selected" : null)">Size M</option>
+                                    <option value="L" selected="@(item.Size == "L" ? "selected" : null)">Size L</option>
+                                </select>
+                            </form>
+                            <span class="text-muted small fw-medium">| @item.Price.ToString("N0") ₫</span>
+                        </div>
 
-                            <div class="text-end ms-2">
-                                <div class="fw-bold text-success mb-2" style="font-size: 0.95rem;">
-                                    @((item.Price * item.Quantity).ToString("N0")) ₫
-                                </div>
-                
-                                <form method="post" action="/Home/RemoveFromCart" class="m-0 p-0">
+                        <div class="d-flex align-items-center justify-content-between mt-2">
+                            <div class="d-flex align-items-center bg-light rounded-pill p-1">
+                                <form method="post" action="/Home/UpdateQuantity" class="m-0 p-0">
                                     <input type="hidden" name="productId" value="@item.ProductId" />
                                     <input type="hidden" name="size" value="@item.Size" />
                                     <input type="hidden" name="tableId" value="@ViewBag.TableId" />
-                                    <button type="submit" class="btn btn-sm btn-danger rounded-3"
-                                            onclick="return confirm('Bạn có chắc muốn bỏ món này khỏi giỏ không?');">
-                                        🗑️
+                                    <input type="hidden" name="quantity" value="@(item.Quantity - 1)" />
+                                    <button type="submit" class="btn btn-sm btn-light qty-btn-cart text-dark border-0 shadow-none" @(item.Quantity <= 1 ? "disabled" : "")>
+                                        ➖
+                                    </button>
+                                </form>
+
+                                <span class="mx-2 fw-bold text-dark" style="min-width: 20px; text-align: center;">@item.Quantity</span>
+
+                                <form method="post" action="/Home/UpdateQuantity" class="m-0 p-0">
+                                    <input type="hidden" name="productId" value="@item.ProductId" />
+                                    <input type="hidden" name="size" value="@item.Size" />
+                                    <input type="hidden" name="tableId" value="@ViewBag.TableId" />
+                                    <input type="hidden" name="quantity" value="@(item.Quantity + 1)" />
+                                    <button type="submit" class="btn btn-sm bg-white qty-btn-cart text-dark border-0 shadow-sm">
+                                        ➕
                                     </button>
                                 </form>
                             </div>
 
+                            <div class="fw-bold text-danger" style="font-size: 1.05rem;">
+                                @((item.Price * item.Quantity).ToString("N0")) ₫
+                            </div>
                         </div>
-                    </div>
-                }
 
-                <div class="d-flex justify-content-between align-items-center mt-2 pt-2">
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <span class="fs-5 fw-bold text-secondary">Tổng thanh toán:</span>
-                    <span class="fs-4 fw-bold text-danger">@grandTotal.ToString("N0") ₫</span>
+                    <span class="fs-3 fw-bold text-danger">@grandTotal.ToString("N0") ₫</span>
                 </div>
             </div>
         </div>
 
         <form method="post" action="/Home/PlaceOrder">
             <input type="hidden" name="tableId" value="@ViewBag.TableId" />
-            <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold py-3 fs-5 shadow">
+            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-3 fs-5 shadow-lg" style="background: linear-gradient(45deg, #0d6efd, #0099ff); border: none;">
                 🚀 GỬI YÊU CẦU ĐẶT MÓN
             </button>
         </form>
     }
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Hàm hiển thị hộp thoại xác nhận xóa cực đẹp bằng SweetAlert2
+        function confirmDelete(event, form) {
+            event.preventDefault(); // Ngăn chặn form submit ngay lập tức
+            
+            Swal.fire({
+                title: 'Bỏ món này?',
+                text: "Bạn có chắc muốn bỏ thức uống này khỏi giỏ hàng không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545', // Màu đỏ giống btn-danger
+                cancelButtonColor: '#6c757d',  // Màu xám
+                confirmButtonText: 'Có, bỏ món',
+                cancelButtonText: 'Không',
+                shape: 'rounded',
+                reverseButtons: true // Đảo ngược vị trí 2 nút (Có bên phải, Không bên trái)
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit(); // Nếu khách bấm "Có", tiến hành gửi form để xóa
+                }
+            });
+        }
+    </script>
+}
