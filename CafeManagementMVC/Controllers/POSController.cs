@@ -37,7 +37,8 @@ namespace CafeManagementMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddToCart(int productId, string size, decimal price)
+        // Đã thêm tham số int quantity vào hàm AddToCart
+        public async Task<IActionResult> AddToCart(int productId, string size, decimal price, int quantity = 1)
         {
             var product = await _context.Products.FindAsync(productId);
             if (product == null) return Json(new { success = false });
@@ -50,7 +51,7 @@ namespace CafeManagementMVC.Controllers
             var existingItem = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == size);
             if (existingItem != null)
             {
-                existingItem.Quantity++;
+                existingItem.Quantity += quantity; // Cộng dồn số lượng
             }
             else
             {
@@ -60,12 +61,57 @@ namespace CafeManagementMVC.Controllers
                     ProductName = product.ProductName,
                     Size = size,
                     Price = price,
-                    Quantity = 1,
+                    Quantity = quantity, // Gắn số lượng chọn từ bên ngoài
                     ImageUrl = product.ImageUrl ?? ""
                 });
             }
 
             HttpContext.Session.SetString("POS_Cart", JsonSerializer.Serialize(cart));
+
+            return Json(new
+            {
+                success = true,
+                totalItems = cart.Sum(c => c.Quantity),
+                totalPrice = cart.Sum(c => c.TotalPrice)
+            });
+        }
+
+        [HttpPost]
+        public IActionResult ChangeItemSize(int productId, string oldSize, string newSize)
+        {
+            var cartJson = HttpContext.Session.GetString("POS_Cart");
+            if (string.IsNullOrEmpty(cartJson)) return Json(new { success = false });
+
+            var cart = JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+            var item = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == oldSize);
+
+            if (item != null && oldSize != newSize)
+            {
+                // 1. Tìm giá gốc (Size S)
+                decimal basePrice = item.Price;
+                if (oldSize == "M") basePrice = item.Price / 1.2m;
+                else if (oldSize == "L") basePrice = item.Price / 1.5m;
+
+                // 2. Tính giá mới theo Size mới
+                decimal newPrice = basePrice;
+                if (newSize == "M") newPrice = basePrice * 1.2m;
+                else if (newSize == "L") newPrice = basePrice * 1.5m;
+
+                // 3. Kiểm tra xem size mới này đã có trong giỏ chưa, có thì gộp lại
+                var existingItem = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == newSize);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += item.Quantity;
+                    cart.Remove(item);
+                }
+                else
+                {
+                    item.Size = newSize;
+                    item.Price = newPrice;
+                }
+
+                HttpContext.Session.SetString("POS_Cart", JsonSerializer.Serialize(cart));
+            }
 
             return Json(new
             {
@@ -84,6 +130,61 @@ namespace CafeManagementMVC.Controllers
                 : JsonSerializer.Deserialize<List<CartItem>>(cartJson);
 
             return PartialView("_CartPartial", cart);
+        }
+
+
+        [HttpPost]
+        public IActionResult UpdateQuantity(int productId, string size, int change)
+        {
+            var cartJson = HttpContext.Session.GetString("POS_Cart");
+            if (string.IsNullOrEmpty(cartJson)) return Json(new { success = false });
+
+            var cart = JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+            var item = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == size);
+
+            if (item != null)
+            {
+                item.Quantity += change; // change sẽ là +1 hoặc -1
+
+                // Nếu số lượng tụt xuống 0 hoặc âm thì xóa luôn món đó
+                if (item.Quantity <= 0)
+                {
+                    cart.Remove(item);
+                }
+
+                // Lưu lại Session
+                HttpContext.Session.SetString("POS_Cart", JsonSerializer.Serialize(cart));
+            }
+
+            return Json(new
+            {
+                success = true,
+                totalItems = cart.Sum(c => c.Quantity),
+                totalPrice = cart.Sum(c => c.TotalPrice)
+            });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveItem(int productId, string size)
+        {
+            var cartJson = HttpContext.Session.GetString("POS_Cart");
+            if (string.IsNullOrEmpty(cartJson)) return Json(new { success = false });
+
+            var cart = JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+            var item = cart.FirstOrDefault(c => c.ProductId == productId && c.Size == size);
+
+            if (item != null)
+            {
+                cart.Remove(item); // Xóa thẳng tay
+                HttpContext.Session.SetString("POS_Cart", JsonSerializer.Serialize(cart));
+            }
+
+            return Json(new
+            {
+                success = true,
+                totalItems = cart.Sum(c => c.Quantity),
+                totalPrice = cart.Sum(c => c.TotalPrice)
+            });
         }
 
         [HttpPost]

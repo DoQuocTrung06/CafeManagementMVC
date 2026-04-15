@@ -84,6 +84,23 @@
         border-color: #0d6efd;
         box-shadow: 0 0 15px rgba(13,110,253,0.3);
     }
+
+    .menu-card {
+        border: none; border-radius: 16px; overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: #fff; height: 100%; display: flex; flex-direction: column;
+    }
+    .img-wrapper { position: relative; width: 100%; padding-top: 100%; background-color: #f8f9fa; overflow: hidden; }
+    .img-wrapper img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .badge-hot {
+        position: absolute; top: 10px; left: 10px; background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 900; z-index: 2;
+    }
+    .qty-btn { width: 32px; height: 32px; border-radius: 50% !important; padding: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .qty-input { border: none !important; background: transparent !important; font-weight: bold; font-size: 1.1rem; width: 40px; text-align: center; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .table-card { cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .table-card.active { border-color: #0d6efd; box-shadow: 0 0 15px rgba(13,110,253,0.3); }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -149,44 +166,45 @@
                         <div class="row g-3">
                             @foreach (var product in ViewBag.Products)
                             {
-                                double basePrice = Convert.ToDouble(product.Price);
-                                double priceM = basePrice * 1.2;
-                                double priceL = basePrice * 1.5;
-
                                 <div class="col-md-4 col-sm-6 product-item" data-category="@product.CategoryId">
-                                    <div class="card product-card h-100"> 
-                                        <div class="product-img-wrapper">
+                                    <div class="menu-card" id="product-card-@product.ProductId">
+
+                                        <div class="img-wrapper">
                                             @if (product.IsNew)
                                             {
-                                                <span class="badge-new">NEW</span>
+                                                <span class="badge-hot">MỚI 🔥</span>
                                             }
-                                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : product.ImageUrl)" alt="@product.ProductName">
+                                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : product.ImageUrl)" alt="@product.ProductName" />
                                         </div>
-                                        
-                                        <div class="product-info">
-                                            <div class="product-title" title="@product.ProductName">@product.ProductName</div>
+
+                                        <div class="p-2 d-flex flex-column flex-grow-1">
+                                            <div class="fw-bold text-dark text-truncate mb-1" style="font-size: 0.95rem;">@product.ProductName</div>
+                    
+                                            <div class="text-danger fw-bold mb-2 product-price-display" data-baseprice="@product.Price">
+                                                @Convert.ToDouble(product.Price).ToString("N0") ₫
+                                            </div>
+
+                                            <div class="mt-auto">
+                                                <input type="hidden" class="selected-size" value="S" />
+
+                                                <div class="d-flex gap-1 mb-2">
+                                                    <button type="button" class="btn btn-sm btn-dark flex-grow-1 size-btn text-white" data-size="S" data-multiplier="1">S</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-dark flex-grow-1 size-btn" data-size="M" data-multiplier="1.2">M</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-dark flex-grow-1 size-btn" data-size="L" data-multiplier="1.5">L</button>
+                                                </div>
+
+                                                <div class="d-flex justify-content-between align-items-center mb-2 bg-light rounded-pill p-1">
+                                                    <button type="button" class="btn btn-outline-secondary qty-btn btn-minus">➖</button>
+                                                    <input type="number" value="1" min="1" max="20" class="form-control form-control-sm qty-input" readonly />
+                                                    <button type="button" class="btn btn-outline-secondary qty-btn btn-plus">➕</button>
+                                                </div>
+
+                                                <button class="btn btn-primary w-100 rounded-pill fw-bold" style="font-size: 0.9rem;" onclick="addSelected(@product.ProductId)">
+                                                    🛒 Thêm món
+                                                </button>
+                                            </div>
                                         </div>
-                                        
-                                        <div class="product-price text-center">
 
-                                            <select class="form-select form-select-sm mb-2" id="size-@product.ProductId">
-                                                <option value="S|@basePrice.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                                                    Size S - @basePrice.ToString("N0")
-                                                </option>
-                                                <option value="M|@priceM.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                                                    Size M - @priceM.ToString("N0")
-                                                </option>
-                                                <option value="L|@priceL.ToString(System.Globalization.CultureInfo.InvariantCulture)">
-                                                    Size L - @priceL.ToString("N0")
-                                                </option>
-                                            </select>
-
-                                            <button class="btn btn-danger w-100 fw-bold"
-                                                    onclick="addSelected(@product.ProductId)">
-                                                <i class="bi bi-plus-circle me-1"></i> Thêm món
-                                            </button>
-
-                                        </div>
                                     </div>
                                 </div>
                             }
@@ -223,64 +241,146 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         let selectedTableId = null;
 
-        // 1. Sửa lỗi chọn bàn: Truyền trực tiếp element (el) vào
+        document.addEventListener("DOMContentLoaded", function () {
+            // XỬ LÝ UI: Chọn Size và Tăng giảm số lượng bên ngoài Menu
+            document.querySelectorAll('.menu-card').forEach(card => {
+                const sizeBtns = card.querySelectorAll('.size-btn');
+                const priceDisplay = card.querySelector('.product-price-display');
+                const hiddenSizeInput = card.querySelector('.selected-size');
+                const basePrice = parseFloat(priceDisplay.dataset.baseprice);
+
+                const btnMinus = card.querySelector('.btn-minus');
+                const btnPlus = card.querySelector('.btn-plus');
+                const inputQty = card.querySelector('.qty-input');
+
+                // Xử lý đổi size -> Đổi màu nút & Đổi giá tiền
+                sizeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        sizeBtns.forEach(b => {
+                            b.classList.remove('btn-dark', 'text-white');
+                            b.classList.add('btn-outline-dark');
+                        });
+                        btn.classList.remove('btn-outline-dark');
+                        btn.classList.add('btn-dark', 'text-white');
+
+                        hiddenSizeInput.value = btn.dataset.size;
+                        const multiplier = parseFloat(btn.dataset.multiplier);
+                        const newPrice = Math.round(basePrice * multiplier);
+                        priceDisplay.innerText = newPrice.toLocaleString('vi-VN') + ' ₫';
+                    });
+                });
+
+                // Xử lý nút - / + số lượng
+                btnMinus.addEventListener('click', () => {
+                    let qty = parseInt(inputQty.value);
+                    if (qty > 1) inputQty.value = qty - 1;
+                });
+
+                btnPlus.addEventListener('click', () => {
+                    let qty = parseInt(inputQty.value);
+                    if (qty < 20) inputQty.value = qty + 1;
+                });
+            });
+        });
+
+        // Chọn bàn
         function selectTable(el, tableId, tableName) {
             selectedTableId = tableId;
-            
-            // Xóa class active ở tất cả các bàn
             $('.table-card').removeClass('active').css('border-color', 'transparent');
-            
-            // Thêm active cho bàn vừa chọn
             $(el).addClass('active').css('border-color', '#0d6efd');
-
-            console.log("Đã chọn bàn: " + tableName); // Kiểm tra ở F12
-
-            $.post('/POS/SelectTable', { tableId: tableId, tableName: tableName })
-             .fail(function() { alert("Lỗi kết nối máy chủ khi chọn bàn!"); });
+            $.post('/POS/SelectTable', { tableId: tableId, tableName: tableName });
         }
 
-        // 2. Hàm lọc danh mục
+        // Lọc danh mục
         function filterCategory(categoryId, btn) {
             $('.nav-link').removeClass('active bg-danger text-white').addClass('bg-light text-dark');
             $(btn).addClass('active bg-danger text-white').removeClass('bg-light text-dark');
-
-            if (categoryId === 'all') {
-                $('.product-item').show();
-            } else {
+            if (categoryId === 'all') $('.product-item').show();
+            else {
                 $('.product-item').hide();
                 $(`.product-item[data-category="${categoryId}"]`).show();
             }
         }
 
-        // 3. Thêm món vào giỏ
-        function addToCart(productId, size, price) {
-            if (!selectedTableId) {
-                alert("CHƯA CHỌN BÀN! Vui lòng click chọn một bàn bên trái trước.");
-                return;
-            }
+        // Thêm món từ Menu vào giỏ
+        function addSelected(productId) {
+            if (!selectedTableId) return alert("CHƯA CHỌN BÀN! Vui lòng chọn một bàn bên trái trước.");
 
-            $.ajax({
-                url: '/POS/AddToCart',
-                type: 'POST',
-                data: { productId: productId, size: size, price: price },
-                success: function (res) {
-                    if (res.success) {
-                        $('#cartCount').text(res.totalItems);
-                        $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
-                        loadCart();
-                        
-                        // Mở giỏ hàng
-                        var cartEl = document.getElementById('cartOffcanvas');
-                        var cart = bootstrap.Offcanvas.getOrCreateInstance(cartEl);
-                        cart.show();
-                    } else {
-                        alert(res.message);
-                    }
-                },
-                error: function() { alert("Không thể thêm món. Kiểm tra kết nối!"); }
+            // Lấy dữ liệu từ chính Card sản phẩm đang được bấm
+            const card = document.getElementById("product-card-" + productId);
+            const size = card.querySelector('.selected-size').value;
+            const quantity = parseInt(card.querySelector('.qty-input').value);
+            
+            // Xóa chữ '₫' và dấu chấm/phẩy phân cách để lấy giá trị số nguyên
+            const priceText = card.querySelector('.product-price-display').innerText;
+            const price = parseFloat(priceText.replace(/[^0-9]/g, ''));
+
+            $.post('/POS/AddToCart', { productId: productId, size: size, price: price, quantity: quantity }, function (res) {
+                if (res.success) {
+                    $('#cartCount').text(res.totalItems);
+                    $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
+                    loadCart();
+                    
+                    // Reset lại input số lượng về 1 sau khi thêm xong
+                    card.querySelector('.qty-input').value = 1;
+
+                    var cartEl = document.getElementById('cartOffcanvas');
+                    var cart = bootstrap.Offcanvas.getOrCreateInstance(cartEl);
+                    cart.show();
+                }
+            });
+        }
+
+        // Đổi Size trực tiếp trong Giỏ hàng Offcanvas
+        function changeCartSize(productId, oldSize, newSize) {
+            $.post('/POS/ChangeItemSize', { productId: productId, oldSize: oldSize, newSize: newSize }, function(res) {
+                if(res.success) {
+                    $('#cartCount').text(res.totalItems);
+                    $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
+                    loadCart();
+                }
+            });
+        }
+
+        // Tăng giảm số lượng trong Giỏ hàng
+        function updateCartItem(productId, size, change) {
+            $.post('/POS/UpdateQuantity', { productId: productId, size: size, change: change }, function(res) {
+                if(res.success) {
+                    $('#cartCount').text(res.totalItems);
+                    $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
+                    loadCart();
+                }
+            });
+        }
+
+        // Xóa món với SweetAlert2 đẹp mắt
+        function confirmDelete(productId, size) {
+            Swal.fire({
+                title: 'Bỏ món này?',
+                text: "Bạn có chắc muốn bỏ thức uống này khỏi hóa đơn không?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Có, bỏ món',
+                cancelButtonText: 'Không',
+                shape: 'rounded',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/POS/RemoveItem', { productId: productId, size: size }, function(res) {
+                        if(res.success) {
+                            $('#cartCount').text(res.totalItems);
+                            $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
+                            loadCart();
+                        }
+                    });
+                }
             });
         }
 
@@ -302,16 +402,6 @@
                     alert(res.message);
                 }
             });
-        }
-
-        function addSelected(productId) {
-            let val = document.getElementById("size-" + productId).value;
-
-            let parts = val.split('|');
-            let size = parts[0];
-            let price = parts[1];
-
-            addToCart(productId, size, price);
         }
     </script>
 }
