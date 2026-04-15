@@ -215,5 +215,11 @@ namespace CafeManagementMVC.Controllers
             ViewBag.OrderId = id;
             return View();
         }
+        // quan li nhan vien
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

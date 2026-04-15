@@ -14,15 +14,15 @@
         <div class="card shadow-sm border-0 mb-3">
             <div class="card-body">
                 <h5 class="fw-bold border-bottom pb-2">Thông tin chung</h5>
-                <p><b>Bàn:</b> @Model.CafeTable?.TableName</p>
+                <p><b>Bàn:</b> @(Model.CafeTable?.TableName ?? "Mang đi")</p>
                 <p><b>Thời gian:</b> @Model.CreatedAt.ToString("HH:mm:ss dd/MM/yyyy")</p>
                 <p>
-                    <b>Trạng thái:</b> 
-                    <span class="badge 
+                    <b>Trạng thái:</b>
+                    <span class="badge
                         @(Model.Status == "Chờ xác nhận" ? "bg-warning text-dark" :
-                          Model.Status == "Đã hủy" ? "bg-danger text-white" :
-                          Model.Status == "Đã thanh toán" ? "bg-success text-white" :
-                          "bg-info text-white")">
+                                                    Model.Status == "Đã hủy" ? "bg-danger text-white" :
+                                                    Model.Status == "Đã thanh toán" ? "bg-success text-white" :
+                                                    "bg-info text-white")">
                         @Model.Status
                     </span>
                 </p>
@@ -42,6 +42,19 @@
                         <div class="alert alert-success text-center border-0 shadow-sm">
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <strong>ĐƠN HÀNG ĐÃ HOÀN TẤT</strong>
+                            <br />
+                            <small class="text-muted">Không thể thay đổi đơn này</small>
+                        </div>
+                    }
+                    else if (Model.Status == "Đã hủy")
+                    {
+                        <select class="form-select mb-3 bg-light text-danger fw-bold" disabled>
+                            <option>❌ Đã hủy</option>
+                        </select>
+        
+                        <div class="alert alert-danger text-center border-0 shadow-sm">
+                            <i class="bi bi-x-circle-fill me-2"></i>
+                            <strong>ĐƠN HÀNG ĐÃ HỦY</strong>
                             <br />
                             <small class="text-muted">Không thể thay đổi đơn này</small>
                         </div>
@@ -77,18 +90,34 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model.OrderDetails)
+                        @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+                        {
+                            foreach (var item in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="d-flex align-items-center">
+                                            @if (item.Product != null)
+                                            {
+                                                <img src="@item.Product.ImageUrl" style="width:40px;height:40px;object-fit:cover" class="rounded me-2" alt="Ảnh món" />
+                                                <b>@item.Product.ProductName</b>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Món đã bị xóa</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td><span class="badge border text-dark">@item.Size</span></td>
+                                    <td>x @item.Quantity</td>
+                                    <td class="text-end pe-3">@((item.Price * item.Quantity).ToString("N0")) ₫</td>
+                                </tr>
+                            }
+                        }
+                        else
                         {
                             <tr>
-                                <td class="ps-3">
-                                    <div class="d-flex align-items-center">
-                                        <img src="@item.Product.ImageUrl" style="width:40px;height:40px;object-fit:cover" class="rounded me-2" />
-                                        <b>@item.Product.ProductName</b>
-                                    </div>
-                                </td>
-                                <td><span class="badge border text-dark">@item.Size</span></td>
-                                <td>x @item.Quantity</td>
-                                <td class="text-end pe-3">@((item.Price * item.Quantity).ToString("N0")) ₫</td>
+                                <td colspan="4" class="text-center py-4 text-muted">Đơn hàng không có món nào.</td>
                             </tr>
                         }
                     </tbody>

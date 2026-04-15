@@ -1,0 +1,64 @@
+﻿@model CafeManagementMVC.Models.User
+
+@{
+    ViewData["Title"] = "Cập nhật nhân viên";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h3 class="fw-bold text-primary">✏️ CẬP NHẬT NHÂN VIÊN</h3>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">🔙 Quay lại</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    <input type="hidden" asp-for="UserId" />
+
+                    <div class="form-group mb-3">
+                        <label asp-for="FullName" class="form-label fw-bold">Họ và Tên</label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="form-label fw-bold">Tên đăng nhập</label>
+                        <input asp-for="Username" class="form-control" readonly />
+                        <small class="text-muted">Không được phép đổi tên đăng nhập.</small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="form-label fw-bold">Mật khẩu</label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="RoleId" class="form-label fw-bold">Phân quyền</label>
+                        <select asp-for="RoleId" class="form-select" asp-items="ViewBag.RoleId"></select>
+                    </div>
+
+                    <div class="card p-3 mb-4 bg-light border-0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" asp-for="Status" id="statusSwitch">
+                                <label class="form-check-label fw-bold text-danger ms-2" for="statusSwitch">
+                                    Cho phép đăng nhập (Khóa/Mở tài khoản)
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary fw-bold w-100 py-2">💾 Cập nhật</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }

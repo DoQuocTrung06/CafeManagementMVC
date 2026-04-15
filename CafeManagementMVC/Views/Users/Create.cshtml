@@ -1,0 +1,54 @@
+﻿@model CafeManagementMVC.Models.User
+
+@{
+    ViewData["Title"] = "Thêm nhân viên";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+    <h3 class="fw-bold text-primary">👤 THÊM NHÂN VIÊN MỚI</h3>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">🔙 Quay lại</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="FullName" class="form-label fw-bold">Họ và Tên</label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nhập họ tên nhân viên..." />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Username" class="form-label fw-bold">Tên đăng nhập</label>
+                        <input asp-for="Username" class="form-control" placeholder="Nhập tên tài khoản..." />
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Password" class="form-label fw-bold">Mật khẩu</label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="RoleId" class="form-label fw-bold">Phân quyền (Chức vụ)</label>
+                        <select asp-for="RoleId" class="form-select" asp-items="ViewBag.RoleId"></select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary fw-bold w-100 py-2">💾 Lưu nhân viên</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

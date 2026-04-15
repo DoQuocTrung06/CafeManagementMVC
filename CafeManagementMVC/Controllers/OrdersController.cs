@@ -13,18 +13,28 @@ namespace CafeManagementMVC.Controllers
             _context = context;
         }
 
-        // GET: Hiển thị danh sách tất cả đơn hàng (Sắp xếp mới nhất lên đầu)
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? filterDate)
         {
-            var orders = await _context.Orders
+            DateTime dateToFilter = filterDate ?? DateTime.Today;
+            ViewBag.SelectedDate = dateToFilter.ToString("yyyy-MM-dd");
+
+            var ordersInDay = await _context.Orders
                 .Include(o => o.CafeTable)
+                .Where(o => o.CreatedAt.Date == dateToFilter.Date)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
-            return View(orders);
+            decimal total = ordersInDay
+                .Where(o => o.Status == "Đã thanh toán")
+                .Sum(o => o.TotalAmount);
+
+            ViewBag.TotalRevenue = total.ToString("N0");
+            ViewBag.SuccessOrders = ordersInDay.Count(o => o.Status == "Đã thanh toán");
+            ViewBag.CanceledOrders = ordersInDay.Count(o => o.Status == "Đã hủy");
+
+            return View(ordersInDay);
         }
 
-        // GET: Xem chi tiết 1 đơn hàng (Bao gồm các món khách gọi)
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -32,7 +42,7 @@ namespace CafeManagementMVC.Controllers
             var order = await _context.Orders
                 .Include(o => o.CafeTable)
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product) // Kéo theo thông tin Món ăn
+                    .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
 
             if (order == null) return NotFound();
@@ -40,36 +50,43 @@ namespace CafeManagementMVC.Controllers
             return View(order);
         }
 
-        // POST: Cập nhật trạng thái đơn hàng (Dùng ở trang Details)
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, string status)
         {
             var order = await _context.Orders.FindAsync(id);
             if (order == null) return NotFound();
 
-            
             if (order.Status == "Đã thanh toán")
             {
                 TempData["ErrorMsg"] = "Không thể thay đổi đơn hàng đã hoàn tất thanh toán!";
                 return RedirectToAction(nameof(Details), new { id = order.OrderId });
             }
 
-            
+            if (order.Status == "Đã hủy")
+            {
+                TempData["ErrorMsg"] = "Đơn hàng đã hủy, không thể thay đổi trạng thái!";
+                return RedirectToAction(nameof(Details), new { id = order.OrderId });
+            }
+
             order.Status = status;
 
-            
             if (status == "Đã thanh toán")
             {
                 order.PaidAt = DateTime.Now;
+
+                var table = await _context.CafeTables.FindAsync(order.TableId);
+                if (table != null)
+                {
+                    table.Status = "Trống";
+                }
             }
             else
             {
-                
                 order.PaidAt = null;
             }
 
             await _context.SaveChangesAsync();
-            TempData["SuccessMsg"] = "Đã cập nhật trạng thái đơn hàng thành công!";
+            TempData["SuccessMsg"] = "Cập nhật trạng thái đơn hàng thành công!";
 
             return RedirectToAction(nameof(Details), new { id = order.OrderId });
         }
