@@ -1,0 +1,317 @@
+﻿@model IEnumerable<CafeManagementMVC.Models.CafeTable>
+
+@{
+    ViewData["Title"] = "Bán Hàng (POS)";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .product-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: transform 0.2s;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+    .product-img-wrapper {
+        position: relative;
+        background-color: #f8f9fa;
+        text-align: center;
+        height: 160px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .product-img-wrapper img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+        padding: 10px;
+    }
+    .badge-new {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #e50000;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 0.75rem;
+        z-index: 2;
+    }
+    .product-info {
+        background-color: #d32f2f;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .product-title {
+        font-weight: bold;
+        font-size: 1rem;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .product-price {
+        text-align: center;
+        padding: 10px 5px;
+        background-color: #fff;
+    }
+    .table-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 2px solid transparent;
+    }
+    .table-card:hover {
+        transform: scale(1.02);
+    }
+    .table-card.active {
+        border-color: #0d6efd;
+        box-shadow: 0 0 15px rgba(13,110,253,0.3);
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold text-dark text-uppercase">
+        <i class="bi bi-cart-plus-fill me-2 text-danger"></i> Màn hình bán hàng
+    </h3>
+    <button class="btn btn-danger fw-bold px-4 py-2 shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
+        <i class="bi bi-bag-check-fill me-2"></i> Giỏ Hàng 
+        <span id="cartCount" class="badge bg-white text-danger ms-2 rounded-pill">0</span>
+    </button>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header bg-dark text-white fw-bold py-3 text-uppercase">
+                <i class="bi bi-grid-3x3-gap-fill me-2 text-danger"></i> Chọn Bàn
+            </div>
+            <div class="card-body bg-light p-2">
+                <div class="row g-2">
+                    @foreach (var item in Model)
+                    {
+                        <div class="col-6">
+                            <div class="card table-card text-center h-100 shadow-sm" onclick="selectTable(this, @item.TableId, '@item.TableName')">
+                                <div class="card-header bg-dark text-white fw-bold py-2" style="font-size: 0.9rem;">
+                                    @item.TableName
+                                </div>
+                                <div class="card-body p-2 d-flex flex-column justify-content-center align-items-center">
+                                    <i class="bi bi-cup-hot fs-3 mb-1 @(item.Status == "Trống" ? "text-success" : "text-danger")"></i>
+                                    <span class="badge @(item.Status == "Trống" ? "bg-success" : "bg-danger")">
+                                        @item.Status
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+            <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-header bg-white py-3 border-bottom">
+                <ul class="nav nav-pills" id="pills-tab">
+                    <li class="nav-item">
+                        <button class="nav-link active bg-danger text-white fw-bold px-4 rounded-pill shadow-sm" 
+                                onclick="filterCategory('all', this)">Tất cả</button>
+                    </li>
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <li class="nav-item ms-2">
+                            <button class="nav-link text-dark fw-bold px-3 rounded-pill border bg-light" 
+                                    onclick="filterCategory('@category.CategoryId', this)">@category.CategoryName</button>
+                        </li>
+                    }
+                </ul>
+            </div>
+            
+            <div class="card-body" style="background-color: #f4f6f9;">
+                <div class="tab-content" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="all" role="tabpanel">
+                        <div class="row g-3">
+                            @foreach (var product in ViewBag.Products)
+                            {
+                                double basePrice = Convert.ToDouble(product.Price);
+                                double priceM = basePrice * 1.2;
+                                double priceL = basePrice * 1.5;
+
+                                <div class="col-md-4 col-sm-6 product-item" data-category="@product.CategoryId">
+                                    <div class="card product-card h-100"> 
+                                        <div class="product-img-wrapper">
+                                            @if (product.IsNew)
+                                            {
+                                                <span class="badge-new">NEW</span>
+                                            }
+                                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "https://cdn-icons-png.flaticon.com/512/3133/3133083.png" : product.ImageUrl)" alt="@product.ProductName">
+                                        </div>
+                                        
+                                        <div class="product-info">
+                                            <div class="product-title" title="@product.ProductName">@product.ProductName</div>
+                                        </div>
+                                        
+                                        <div class="product-price text-center">
+
+                                            <select class="form-select form-select-sm mb-2" id="size-@product.ProductId">
+                                                <option value="S|@basePrice.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                                    Size S - @basePrice.ToString("N0")
+                                                </option>
+                                                <option value="M|@priceM.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                                    Size M - @priceM.ToString("N0")
+                                                </option>
+                                                <option value="L|@priceL.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                                    Size L - @priceL.ToString("N0")
+                                                </option>
+                                            </select>
+
+                                            <button class="btn btn-danger w-100 fw-bold"
+                                                    onclick="addSelected(@product.ProductId)">
+                                                <i class="bi bi-plus-circle me-1"></i> Thêm món
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cartOffcanvas" style="width: 450px;">
+    <div class="offcanvas-header bg-dark text-white">
+        <h5 class="offcanvas-title fw-bold"><i class="bi bi-receipt me-2"></i> HÓA ĐƠN ĐANG TẠO</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0" style="background-color: #f8f9fa;">
+        <div id="cartContent" class="p-3">
+            <div class="text-center text-muted mt-5">
+                <i class="bi bi-cart-x fs-1"></i>
+                <p>Chưa có món nào được chọn</p>
+            </div>
+        </div>
+    </div>
+    <div class="offcanvas-footer border-top bg-white p-3 shadow-lg">
+        <div class="d-flex justify-content-between mb-3">
+            <span class="fw-bold text-secondary">TỔNG CỘNG:</span>
+            <span class="fw-bold text-danger fs-4" id="cartTotalText">0 đ</span>
+        </div>
+        <button class="btn btn-success w-100 fw-bold py-3 fs-5" onclick="processCheckout()">
+            <i class="bi bi-cash-coin me-2"></i> THANH TOÁN NGAY
+        </button>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedTableId = null;
+
+        // 1. Sửa lỗi chọn bàn: Truyền trực tiếp element (el) vào
+        function selectTable(el, tableId, tableName) {
+            selectedTableId = tableId;
+            
+            // Xóa class active ở tất cả các bàn
+            $('.table-card').removeClass('active').css('border-color', 'transparent');
+            
+            // Thêm active cho bàn vừa chọn
+            $(el).addClass('active').css('border-color', '#0d6efd');
+
+            console.log("Đã chọn bàn: " + tableName); // Kiểm tra ở F12
+
+            $.post('/POS/SelectTable', { tableId: tableId, tableName: tableName })
+             .fail(function() { alert("Lỗi kết nối máy chủ khi chọn bàn!"); });
+        }
+
+        // 2. Hàm lọc danh mục
+        function filterCategory(categoryId, btn) {
+            $('.nav-link').removeClass('active bg-danger text-white').addClass('bg-light text-dark');
+            $(btn).addClass('active bg-danger text-white').removeClass('bg-light text-dark');
+
+            if (categoryId === 'all') {
+                $('.product-item').show();
+            } else {
+                $('.product-item').hide();
+                $(`.product-item[data-category="${categoryId}"]`).show();
+            }
+        }
+
+        // 3. Thêm món vào giỏ
+        function addToCart(productId, size, price) {
+            if (!selectedTableId) {
+                alert("CHƯA CHỌN BÀN! Vui lòng click chọn một bàn bên trái trước.");
+                return;
+            }
+
+            $.ajax({
+                url: '/POS/AddToCart',
+                type: 'POST',
+                data: { productId: productId, size: size, price: price },
+                success: function (res) {
+                    if (res.success) {
+                        $('#cartCount').text(res.totalItems);
+                        $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
+                        loadCart();
+                        
+                        // Mở giỏ hàng
+                        var cartEl = document.getElementById('cartOffcanvas');
+                        var cart = bootstrap.Offcanvas.getOrCreateInstance(cartEl);
+                        cart.show();
+                    } else {
+                        alert(res.message);
+                    }
+                },
+                error: function() { alert("Không thể thêm món. Kiểm tra kết nối!"); }
+            });
+        }
+
+        function loadCart() {
+            $.get('/POS/GetCartItems', function (html) {
+                $('#cartContent').html(html);
+            });
+        }
+
+        function processCheckout() {
+            if (!selectedTableId) return alert("Vui lòng chọn bàn!");
+            if (!confirm("Xác nhận thanh toán hóa đơn này?")) return;
+
+            $.post('/POS/Checkout', { tableId: selectedTableId }, function (res) {
+                if (res.success) {
+                    alert("Thanh toán thành công!");
+                    location.reload();
+                } else {
+                    alert(res.message);
+                }
+            });
+        }
+
+        function addSelected(productId) {
+            let val = document.getElementById("size-" + productId).value;
+
+            let parts = val.split('|');
+            let size = parts[0];
+            let price = parts[1];
+
+            addToCart(productId, size, price);
+        }
+    </script>
+}

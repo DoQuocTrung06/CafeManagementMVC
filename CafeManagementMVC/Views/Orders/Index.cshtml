@@ -13,32 +13,35 @@
     </form>
 </div>
 
-<div class="row mb-4 text-center">
-    <div class="col-md-4">
-        <div class="card bg-success text-white shadow-sm border-0 rounded-3">
-            <div class="card-body py-4">
-                <h6 class="fw-bold text-uppercase mb-2">Doanh thu (Đã thanh toán)</h6>
-                <h3 class="mb-0 fw-bold">@ViewBag.TotalRevenue ₫</h3>
+@if (User.IsInRole("Admin"))
+{
+    <div class="row mb-4 text-center">
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm border-0 rounded-3">
+                <div class="card-body py-4">
+                    <h6 class="fw-bold text-uppercase mb-2">Doanh thu (Đã thanh toán)</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.TotalRevenue ₫</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-dark shadow-sm border-0 rounded-3">
+                <div class="card-body py-4">
+                    <h6 class="fw-bold text-uppercase mb-2">Đơn thành công</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.SuccessOrders <span class="fs-5 fw-normal">đơn</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white shadow-sm border-0 rounded-3">
+                <div class="card-body py-4">
+                    <h6 class="fw-bold text-uppercase mb-2">Đơn đã hủy</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.CanceledOrders <span class="fs-5 fw-normal">đơn</span></h3>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-info text-dark shadow-sm border-0 rounded-3">
-            <div class="card-body py-4">
-                <h6 class="fw-bold text-uppercase mb-2">Đơn thành công</h6>
-                <h3 class="mb-0 fw-bold">@ViewBag.SuccessOrders <span class="fs-5 fw-normal">đơn</span></h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-danger text-white shadow-sm border-0 rounded-3">
-            <div class="card-body py-4">
-                <h6 class="fw-bold text-uppercase mb-2">Đơn đã hủy</h6>
-                <h3 class="mb-0 fw-bold">@ViewBag.CanceledOrders <span class="fs-5 fw-normal">đơn</span></h3>
-            </div>
-        </div>
-    </div>
-</div>
+}
 
 <div class="card shadow-sm border-0 rounded-3">
     <div class="table-responsive">
@@ -81,9 +84,12 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary fw-bold">
-                                    <i class="bi bi-eye"></i> Xem & Duyệt
-                                </a>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary fw-bold">
+                                        <i class="bi bi-eye"></i> Xem & Duyệt
+                                    </a>
+                                }
                             </td>
                         </tr>
                     }

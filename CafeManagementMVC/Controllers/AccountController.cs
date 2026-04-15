@@ -55,27 +55,37 @@ namespace CafeManagementMVC.Controllers
                 }
 
                 // Đăng nhập thành công -> Tạo Cookie lưu thông tin
+                // Đăng nhập thành công -> Tạo Cookie lưu thông tin
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim("FullName", user.FullName ?? ""),
-                    new Claim(ClaimTypes.Role, user.Role.RoleName), // Phân quyền Admin hay Staff
-                    new Claim("UserId", user.UserId.ToString())
+                    new Claim(ClaimTypes.Role, user.Role.RoleName), 
+                    // SỬA TẠI ĐÂY: Dùng NameIdentifier để POSController lấy được ID
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
                 };
 
-                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var identity = new ClaimsIdentity(claims, "CookieAuth");
                 var principal = new ClaimsPrincipal(identity);
 
-                await HttpContext.SignInAsync("CookieAuth", principal);
+                // Cấu hình ghi nhớ đăng nhập (tùy chọn)
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
+                };
 
-                // TC01 & TC02: Chuyển hướng theo Quyền
+                // SỬA TẠI ĐÂY: Dùng AuthenticationScheme mặc định để đồng bộ với Program.cs
+                await HttpContext.SignInAsync("CookieAuth", principal, authProperties);
+
+                // Chuyển hướng theo Quyền
                 if (user.Role.RoleName == "Admin")
                 {
-                    return RedirectToAction("Index", "Home"); // Tạm thời trỏ về Home, sau này có trang Admin trỏ sau
+                    return RedirectToAction("Index", "Home"); 
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home"); // Tạm thời trỏ về Home, sau này có trang Bán hàng trỏ sau
+                    return RedirectToAction("Index", "POS"); // Nhân viên nên vào thẳng trang Bán hàng
                 }
             }
             return View(model);

@@ -1,0 +1,97 @@
+﻿@model CafeManagementMVC.Models.Order
+@{
+    Layout = null; 
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Hóa Đơn #@Model.OrderId</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            width: 80mm; /* Chuẩn giấy in nhiệt K80 */
+            margin: 0 auto;
+            padding: 10px;
+            color: #000;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .fw-bold { font-weight: bold; }
+        .dashed-line {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 4px 0; }
+        .store-name { font-size: 20px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        
+        /* Ẩn mọi thứ khác khi in, chỉ in vùng này */
+        @@media print {
+            body { width: 100%; margin: 0; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="text-center store-name">MY CAFE</div>
+    <div class="text-center" style="font-size: 12px; margin-bottom: 15px;">
+        Đ/c: 123 Đường ABC, Quận X, TP.HCM<br />
+        SĐT: 0123.456.789
+    </div>
+
+    <div class="text-center fw-bold" style="font-size: 18px;">HÓA ĐƠN THANH TOÁN</div>
+    
+    <div style="font-size: 13px; margin-top: 10px;">
+        <div><b>Số phiếu:</b> #@Model.OrderId</div>
+        <div><b>Bàn:</b> @(Model.CafeTable?.TableName ?? "Mang đi")</div>
+        <div><b>Ngày in:</b> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+    </div>
+
+    <div class="dashed-line"></div>
+
+    <table>
+        <thead>
+            <tr style="border-bottom: 1px dashed #000;">
+                <th style="text-align: left;">Món</th>
+                <th style="text-align: center;">SL</th>
+                <th style="text-align: right;">T.Tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.OrderDetails != null)
+            {
+                foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>@item.Product?.ProductName<br><small>(@item.Size)</small></td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-right">@((item.Price * item.Quantity).ToString("N0"))</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div class="dashed-line"></div>
+
+    <table style="font-size: 16px; margin-top: 10px;">
+        <tr>
+            <td class="fw-bold">TỔNG CỘNG:</td>
+            <td class="fw-bold text-right" style="font-size: 18px;">@Model.TotalAmount.ToString("N0") ₫</td>
+        </tr>
+    </table>
+
+    <div class="dashed-line"></div>
+    <div class="text-center" style="font-size: 12px; margin-top: 15px;">
+        Cảm ơn Quý khách và hẹn gặp lại!<br />
+        <i>Vui lòng giữ lại hóa đơn để kiểm tra.</i>
+    </div>
+
+    <script>
+        window.onload = function () {
+            window.print();
+        }
+    </script>
+</body>
+</html>

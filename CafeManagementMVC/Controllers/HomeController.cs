@@ -5,6 +5,10 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Http; // Thêm thư viện xử lý Session
 using System.Text.Json; // Thêm thư viện xử lý JSON
 using Microsoft.EntityFrameworkCore; // Thêm để dùng Include()
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 
 namespace CafeManagementMVC.Controllers
 {
