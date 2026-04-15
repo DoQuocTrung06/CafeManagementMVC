@@ -114,7 +114,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-lg-5 col-md-6">
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px; overflow: hidden;">
             <div class="card-header bg-dark text-white fw-bold py-3 text-uppercase">
                 <i class="bi bi-grid-3x3-gap-fill me-2 text-danger"></i> Chọn Bàn
@@ -142,7 +142,7 @@
         </div>
     </div>
 
-    <div class="col-md-8">
+    <div class="col-lg-7 col-md-6">
             <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
             <div class="card-header bg-white py-3 border-bottom">
                 <ul class="nav nav-pills" id="pills-tab">
@@ -166,7 +166,7 @@
                         <div class="row g-3">
                             @foreach (var product in ViewBag.Products)
                             {
-                                <div class="col-md-4 col-sm-6 product-item" data-category="@product.CategoryId">
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 product-item" data-category="@product.CategoryId">
                                     <div class="menu-card" id="product-card-@product.ProductId">
 
                                         <div class="img-wrapper">
@@ -308,14 +308,26 @@
         }
 
         // Thêm món từ Menu vào giỏ
+        // Thêm món từ Menu vào giỏ
         function addSelected(productId) {
-            if (!selectedTableId) return alert("CHƯA CHỌN BÀN! Vui lòng chọn một bàn bên trái trước.");
+            // Thay thế alert() mặc định bằng SweetAlert2
+            if (!selectedTableId) { 
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn bàn!',
+                    text: 'Vui lòng chọn một bàn trong danh sách bên trái trước khi thêm món nhé.',
+                    confirmButtonText: 'Đã hiểu',
+                    confirmButtonColor: '#0d6efd',
+                    shape: 'rounded'
+                });
+                return;
+            }
 
             // Lấy dữ liệu từ chính Card sản phẩm đang được bấm
             const card = document.getElementById("product-card-" + productId);
             const size = card.querySelector('.selected-size').value;
             const quantity = parseInt(card.querySelector('.qty-input').value);
-            
+    
             // Xóa chữ '₫' và dấu chấm/phẩy phân cách để lấy giá trị số nguyên
             const priceText = card.querySelector('.product-price-display').innerText;
             const price = parseFloat(priceText.replace(/[^0-9]/g, ''));
@@ -325,7 +337,18 @@
                     $('#cartCount').text(res.totalItems);
                     $('#cartTotalText').text(res.totalPrice.toLocaleString('vi-VN') + " đ");
                     loadCart();
-                    
+            
+                    // Tùy chọn: Thêm một thông báo Toast nhỏ góc phải báo thêm thành công (Rất Pro)
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'Đã thêm vào hóa đơn',
+                        showConfirmButton: false,
+                        timer: 1000,
+                        timerProgressBar: true
+                    });
+
                     // Reset lại input số lượng về 1 sau khi thêm xong
                     card.querySelector('.qty-input').value = 1;
 
@@ -391,17 +414,47 @@
         }
 
         function processCheckout() {
-            if (!selectedTableId) return alert("Vui lòng chọn bàn!");
-            if (!confirm("Xác nhận thanh toán hóa đơn này?")) return;
-
-            $.post('/POS/Checkout', { tableId: selectedTableId }, function (res) {
-                if (res.success) {
-                    alert("Thanh toán thành công!");
-                    location.reload();
-                } else {
-                    alert(res.message);
-                }
+        if (!selectedTableId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Chưa chọn bàn!',
+                text: 'Vui lòng chọn bàn cần thanh toán.',
+                confirmButtonColor: '#0d6efd'
             });
+            return;
         }
+
+        // Thay thế confirm() mặc định
+        Swal.fire({
+            title: 'Xác nhận thanh toán?',
+            text: "Bạn có chắc chắn muốn chốt hóa đơn cho bàn này không?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754', // Màu xanh lá cho nút thanh toán
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '💵 Có, thanh toán',
+            cancelButtonText: 'Không',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.post('/POS/Checkout', { tableId: selectedTableId }, function (res) {
+                    if (res.success) {
+                        // Alert thành công và tự động reload trang sau 1.5s
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thanh toán thành công!',
+                            text: 'Hóa đơn đã được xử lý.',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire('Lỗi!', res.message, 'error');
+                    }
+                });
+            }
+        });
+    }
     </script>
 }
