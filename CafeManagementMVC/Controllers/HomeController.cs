@@ -1,14 +1,15 @@
+using CafeManagementMVC.Extensions;
 using CafeManagementMVC.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http; // Thêm thư viện xử lý Session
-using System.Text.Json; // Thêm thư viện xử lý JSON
-using Microsoft.EntityFrameworkCore; // Thêm để dùng Include()
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using CafeManagementMVC.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http; // Thêm thư viện xử lý Session
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore; // Thêm để dùng Include()
+using System.Diagnostics;
+using System.Security.Claims;
+using System.Text.Json; // Thêm thư viện xử lý JSON
 
 namespace CafeManagementMVC.Controllers
 {
@@ -269,6 +270,102 @@ namespace CafeManagementMVC.Controllers
             return RedirectToAction("Cart", new { tableId = tableId });
         }
 
-            
+
+        //them anh
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> UpdateLogo(IFormFile logoFile)
+        {
+            if (logoFile != null && logoFile.Length > 0)
+            {
+                // 📁 Trỏ đúng vào thư mục images
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+
+                // ✅ Tự tạo folder nếu chưa có (an toàn tuyệt đối)
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // 📸 Tạo tên file tránh cache
+                var fileName = "logo_" + DateTime.Now.Ticks + Path.GetExtension(logoFile.FileName);
+                var path = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await logoFile.CopyToAsync(stream);
+                }
+
+                // 💾 Lưu DB
+                var logoSetting = _context.Settings.FirstOrDefault(s => s.setting_key == "LogoUrl");
+                if (logoSetting != null)
+                {
+                    logoSetting.setting_value = "/images/" + fileName;
+                    _context.SaveChanges();
+                }
+
+                return Json(new { success = true, newUrl = "/images/" + fileName });
+            }
+
+            return Json(new { success = false });
+        }
+
+
+        // anh
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            base.OnActionExecuting(context);
+
+            // Lấy Logo
+            var logo = _context.Settings.FirstOrDefault(s => s.setting_key == "LogoUrl");
+            ViewBag.LogoUrl = logo?.setting_value ?? "/images/default_logo.png";
+
+            // Lấy Background
+            var bg = _context.Settings.FirstOrDefault(s => s.setting_key == "BackgroundUrl");
+            ViewBag.BackgroundUrl = bg?.setting_value ?? "/images/default_bg.jpg";
+        }
+
+        //background
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> UpdateBackground(IFormFile bgFile)
+        {
+            if (bgFile != null && bgFile.Length > 0)
+            {
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+
+                // Tạo tên file duy nhất
+                var fileName = "bg_" + DateTime.Now.Ticks + Path.GetExtension(bgFile.FileName);
+                var path = Path.Combine(folderPath, fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await bgFile.CopyToAsync(stream);
+                }
+
+                // Cập nhật hoặc Thêm mới vào DB
+                var bgSetting = _context.Settings.FirstOrDefault(s => s.setting_key == "BackgroundUrl");
+                if (bgSetting != null)
+                {
+                    bgSetting.setting_value = "/images/" + fileName;
+                }
+                else
+                {
+                    // Nếu chưa có key này thì tạo mới luôn
+                    _context.Settings.Add(new Setting
+                    {
+                        setting_key = "BackgroundUrl",
+                        setting_value = "/images/" + fileName
+                    });
+                }
+                _context.SaveChanges();
+
+                return Json(new { success = true, newUrl = "/images/" + fileName });
+            }
+            return Json(new { success = false });
+        }
     }
 }

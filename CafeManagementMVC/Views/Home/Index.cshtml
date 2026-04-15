@@ -1,13 +1,135 @@
 ﻿@{
     ViewData["Title"] = "Bảng điều khiển";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml"; 
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="row">
     <div class="col-md-12">
-        <div class="card shadow p-4">
-            <h2>Chào mừng quay trở lại!</h2>
-            <p>Đây là hệ thống quản lý quán Cafe. Bạn có thể bắt đầu quản lý danh mục và sản phẩm từ thanh bên trái.</p>
+        <div class="pro-dashboard-container" style="background-image: url('@(ViewBag.BackgroundUrl ?? "/images/default_bg.jpg")');">
+            
+            <div class="pro-overlay"></div>
+            
+            <div class="pro-content">
+                <div class="brand-tag">Hệ thống quản lý My Cafe</div>
+                <h2 class="hero-title">Khơi nguồn cảm hứng,<br><span class="highlight">Dẫn đầu chất lượng.</span></h2>
+                <p class="hero-desc">Chào mừng đội ngũ vận hành quay trở lại. Hãy cùng nhau kiểm soát chặt chẽ danh mục và tối ưu hóa từng sản phẩm để mang lại trải nghiệm tốt nhất cho khách hàng hôm nay.</p>
+            </div>
+
+            <input type="file" id="bgInput" hidden accept="image/*" onchange="uploadBg(this)">
+            <button class="btn-edit-bg-pro" onclick="document.getElementById('bgInput').click()" title="Đổi ảnh không gian quán">
+                📷
+            </button>
         </div>
     </div>
 </div>
+
+<style>
+    .pro-dashboard-container {
+        position: relative;
+        min-height: calc(100vh - 150px);
+        border-radius: 20px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        padding: 80px;
+        overflow: hidden;
+        margin-top: -15px;
+        transition: all 0.5s ease;
+    }
+
+    .pro-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Dùng Gradient tối dần về bên trái để làm nền cho chữ */
+        background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%);
+        z-index: 1;
+    }
+
+    .pro-content {
+        position: relative;
+        z-index: 2;
+        max-width: 750px;
+        color: white;
+    }
+
+    .brand-tag {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        background: rgba(255,255,255,0.1);
+        padding: 6px 15px;
+        border-radius: 4px;
+        margin-bottom: 25px;
+        display: inline-block;
+        border-left: 4px solid #00f2fe; /* Nhấn nhá một chút màu sắc */
+    }
+
+    .hero-title {
+        font-weight: 900;
+        font-size: 3.5rem;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        /* Đổ bóng chữ mạnh mẽ để thay thế Gradient lằng nhằng */
+        text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+    }
+
+    .highlight {
+        color: #00f2fe; /* Dùng màu phẳng cực sáng thay cho Gradient text bị lỗi */
+        font-style: italic;
+    }
+
+    .hero-desc {
+        font-size: 1.3rem;
+        line-height: 1.8;
+        opacity: 0.9;
+        margin-bottom: 35px;
+        font-weight: 300;
+    }
+
+    .btn-edit-bg-pro {
+        position: absolute;
+        bottom: 30px;
+        right: 30px;
+        z-index: 3;
+        background: white;
+        color: #333;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        transition: 0.3s;
+    }
+
+        .btn-edit-bg-pro:hover {
+            transform: scale(1.1);
+            background: #00f2fe;
+            color: white;
+        }
+</style>
+
+<script>
+    function uploadBg(input) {
+        if (input.files && input.files[0]) {
+            var formData = new FormData();
+            formData.append("bgFile", input.files[0]);
+
+            fetch('/Home/UpdateBackground', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+    }
+</script>

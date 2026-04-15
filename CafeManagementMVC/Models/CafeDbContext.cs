@@ -15,5 +15,6 @@ namespace CafeManagementMVC.Models
         public DbSet<CafeTable> CafeTables { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Setting> Settings { get; set; }
     }
 }
