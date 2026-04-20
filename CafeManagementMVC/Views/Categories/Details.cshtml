@@ -1,25 +1,44 @@
 ﻿@model CafeManagementMVC.Models.Category
 
 @{
-    ViewData["Title"] = "Quản lý Danh mục";
+    ViewData["Title"] = "Chi tiết danh mục";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Details</h1>
+<div class="container-fluid mt-2">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-header bg-dark text-white p-3 border-0" style="border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem;">
+                    <h5 class="mb-0 fs-6">
+                        <i class="bi bi-info-circle-fill me-2"></i> Chi tiết danh mục
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <label class="text-muted small fw-bold text-uppercase mb-2">
+                            @Html.DisplayNameFor(model => model.CategoryName)
+                        </label>
+                        <div class="p-3 bg-light rounded-3 border">
+                            <span class="fs-5 text-dark fw-semibold">
+                                @Html.DisplayFor(model => model.CategoryName)
+                            </span>
+                        </div>
+                    </div>
 
-<div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CategoryName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CategoryName)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.CategoryId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <a asp-action="Index" class="btn btn-secondary text-white px-4 shadow-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Quay lại
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model?.CategoryId" class="btn btn-primary px-4 shadow-sm">
+                            <i class="bi bi-pencil-square me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>

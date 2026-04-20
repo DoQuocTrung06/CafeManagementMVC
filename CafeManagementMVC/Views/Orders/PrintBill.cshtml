@@ -2,7 +2,6 @@
 @{
     Layout = null; 
 }
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -40,11 +39,14 @@
         SĐT: 0123.456.789
     </div>
 
-    <div class="text-center fw-bold" style="font-size: 18px;">HÓA ĐƠN THANH TOÁN</div>
+    <div class="text-center fw-bold" style="font-size: 18px;">
+        @(Model.Status == "Đã hủy" ? "HÓA ĐƠN (ĐÃ HỦY)" : "HÓA ĐƠN THANH TOÁN")
+    </div>
     
     <div style="font-size: 13px; margin-top: 10px;">
         <div><b>Số phiếu:</b> #@Model.OrderId</div>
         <div><b>Bàn:</b> @(Model.CafeTable?.TableName ?? "Mang đi")</div>
+        <div><b>Trạng thái:</b> @Model.Status</div>
         <div><b>Ngày in:</b> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
     </div>
 
@@ -84,8 +86,15 @@
 
     <div class="dashed-line"></div>
     <div class="text-center" style="font-size: 12px; margin-top: 15px;">
-        Cảm ơn Quý khách và hẹn gặp lại!<br />
-        <i>Vui lòng giữ lại hóa đơn để kiểm tra.</i>
+        @if(Model.Status == "Đã hủy")
+        {
+            <b>Hóa đơn này không có giá trị thanh toán!</b>
+        }
+        else
+        {
+            <span>Cảm ơn Quý khách và hẹn gặp lại!<br />
+            <i>Vui lòng giữ lại hóa đơn để kiểm tra.</i></span>
+        }
     </div>
 
     <script>
