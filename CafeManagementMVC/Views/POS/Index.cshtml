@@ -424,13 +424,12 @@
             return;
         }
 
-        // Thay thế confirm() mặc định
         Swal.fire({
             title: 'Xác nhận thanh toán?',
             text: "Bạn có chắc chắn muốn chốt hóa đơn cho bàn này không?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#198754', // Màu xanh lá cho nút thanh toán
+            confirmButtonColor: '#198754', 
             cancelButtonColor: '#6c757d',
             confirmButtonText: '💵 Có, thanh toán',
             cancelButtonText: 'Không',
@@ -439,11 +438,16 @@
             if (result.isConfirmed) {
                 $.post('/POS/Checkout', { tableId: selectedTableId }, function (res) {
                     if (res.success) {
-                        // Alert thành công và tự động reload trang sau 1.5s
+                        // 1. Bật tab in hóa đơn ngay lập tức nếu Controller có trả về URL
+                        if (res.redirectUrl) {
+                            window.open(res.redirectUrl, '_blank');
+                        }
+
+                        // 2. Hiển thị thông báo thành công và reload lại trang POS
                         Swal.fire({
                             icon: 'success',
                             title: 'Thanh toán thành công!',
-                            text: 'Hóa đơn đã được xử lý.',
+                            text: 'Đang mở trang in hóa đơn...',
                             showConfirmButton: false,
                             timer: 1500
                         }).then(() => {

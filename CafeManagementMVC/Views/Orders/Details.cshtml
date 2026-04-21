@@ -7,9 +7,24 @@
 <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
     <h3 class="fw-bold text-info">ℹ️ CHI TIẾT ĐƠN #@Model.OrderId</h3>
     <div>
-        <a asp-action="PrintBill" asp-route-id="@Model.OrderId" target="_blank" class="btn btn-sm btn-dark fw-bold me-2">
-            <i class="bi bi-printer"></i> In Hóa Đơn
-        </a>
+        @* LOGIC IN BILL ĐÃ ĐƯỢC CHUẨN HÓA LẠI *@
+        @if (Model.Status == "Đã thanh toán")
+        {
+            <a asp-action="PrintBill" asp-route-id="@Model.OrderId" target="_blank" class="btn btn-sm btn-success fw-bold me-2">
+                <i class="bi bi-printer"></i> In Hóa Đơn
+            </a>
+        }
+        else if (Model.Status == "Đã hủy")
+        {
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="PrintBill" asp-route-id="@Model.OrderId" target="_blank" class="btn btn-sm btn-warning fw-bold me-2" title="In lại để đối soát">
+                    <i class="bi bi-printer"></i> In Hóa Đơn
+                </a>
+            }
+        }
+        @* Nếu là "Chờ xác nhận" thì sẽ KHÔNG HIỆN nút in bill nào cả *@
+
         <a asp-action="Index" class="btn btn-sm btn-outline-secondary fw-bold">🔙 Quay lại</a>
     </div>
 </div>
@@ -25,9 +40,9 @@
                     <b>Trạng thái:</b>
                     <span class="badge
                         @(Model.Status == "Chờ xác nhận" ? "bg-warning text-dark" :
-                                                    Model.Status == "Đã hủy" ? "bg-danger text-white" :
-                                                    Model.Status == "Đã thanh toán" ? "bg-success text-white" :
-                                                    "bg-info text-white")">
+                            Model.Status == "Đã hủy" ? "bg-danger text-white" :
+                            Model.Status == "Đã thanh toán" ? "bg-success text-white" :
+                            "bg-info text-white")">
                         @Model.Status
                     </span>
                 </p>
@@ -38,44 +53,50 @@
                     <input type="hidden" name="id" value="@Model.OrderId" />
                     <label class="fw-bold mb-2">Cập nhật trạng thái đơn:</label>
 
+                    @* KIỂM TRA: Nếu đã hủy thì khóa hoàn toàn (quy tắc kế toán) *@
                     @if (Model.Status == "Đã hủy")
                     {
-                        <select class="form-select mb-3 bg-light text-danger fw-bold" disabled>
-                            <option>❌ Đã hủy</option>
-                        </select>
-
-                        <div class="alert alert-danger text-center border-0 shadow-sm">
-                            <i class="bi bi-x-circle-fill me-2"></i>
-                            <strong>ĐƠN HÀNG ĐÃ HỦY</strong>
-                            <br />
-                            <small class="text-muted">Không thể thay đổi</small>
+                        <div class="d-flex justify-content-center mb-3">
+                            <span class="badge bg-danger fs-6 px-4 py-2">
+                                ❌ Đã hủy
+                            </span>
                         </div>
+                        <div class="alert alert-danger text-center py-2">Đơn đã hủy - Không thể sửa</div>
+                    }
+                    @* Nếu đã thanh toán: Staff bị khóa, nhưng ADMIN vẫn được chỉnh (để Hủy đơn nếu cần) *@
+                    else if (Model.Status == "Đã thanh toán" && !User.IsInRole("Admin"))
+                    {
+                        <div class="d-flex justify-content-center mb-3">
+                            <span class="badge bg-success fs-6 px-4 py-2">
+                                ✅ Đã thanh toán
+                            </span>
+                        </div>
+                        <div class="alert alert-success text-center py-2">Đơn đã chốt - Chỉ Quản lý mới được sửa</div>
                     }
                     else
                     {
-                        <select name="status" class="form-select mb-3">
-
+                       
+                        <select name="status" class="form-select mb-3 fw-bold text-center">
+                            
                             <option value="Chờ xác nhận" selected="@(Model.Status == "Chờ xác nhận")">
-                                Chờ xác nhận
+                                ⏳ Chờ xác nhận
                             </option>
 
-                            <option value="Đang phục vụ" selected="@(Model.Status == "Đang phục vụ")">
-                                Đang phục vụ
+                            <option value="Đã thanh toán" selected="@(Model.Status == "Đã thanh toán")" class="text-success">
+                                ✅ Đã thanh toán
                             </option>
 
-                            <option value="Đã thanh toán" selected="@(Model.Status == "Đã thanh toán")">
-                                Đã thanh toán
-                            </option>
-
+                            
                             @if (User.IsInRole("Admin"))
                             {
-                                <option value="Đã hủy">Đã hủy</option>
+                                <option value="Đã hủy" selected="@(Model.Status == "Đã hủy")" class="text-danger">
+                                    ❌ Đã hủy
+                                </option>
                             }
-
                         </select>
 
                         <button type="submit" class="btn btn-primary w-100 fw-bold">
-                            <i class="bi bi-save me-1"></i> 💾 CẬP NHẬT
+                            <i class="bi bi-save me-1"></i> CẬP NHẬT
                         </button>
                     }
                 </form>

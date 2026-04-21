@@ -18,21 +18,17 @@ namespace CafeManagementMVC.Controllers
             DateTime dateToFilter = filterDate ?? DateTime.Today;
             ViewBag.SelectedDate = dateToFilter.ToString("yyyy-MM-dd");
 
+            // 1. SỬA: Lấy tất cả đơn hàng trong ngày, cả Admin và Nhân viên đều thấy hết để còn làm nước
             var query = _context.Orders
                 .Include(o => o.CafeTable)
                 .Where(o => o.CreatedAt.Date == dateToFilter.Date)
                 .AsQueryable();
 
-            if (!User.IsInRole("Admin"))
-            {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                query = query.Where(o => o.UserId.ToString() == userId);
-            }
-
             var ordersInDay = await query
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
+            // 2. GIỮ NGUYÊN: Chỉ Admin mới thấy các thông số tổng kết (Doanh thu, số đơn...)
             if (User.IsInRole("Admin"))
             {
                 decimal total = ordersInDay
@@ -50,10 +46,7 @@ namespace CafeManagementMVC.Controllers
         [HttpGet]
         public async Task<IActionResult> PrintBill(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var order = await _context.Orders
                 .Include(o => o.CafeTable)
@@ -61,21 +54,14 @@ namespace CafeManagementMVC.Controllers
                     .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(m => m.OrderId == id);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
+            if (order == null) return NotFound();
 
             return View(order);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (!User.IsInRole("Admin"))
-            {
-                return RedirectToAction("Index");
-            }
-
+            // 3. SỬA: ĐÃ XÓA ĐOẠN CHẶN NHÂN VIÊN. Giờ Nhân viên vào xem được chi tiết món khách gọi.
             if (id == null) return NotFound();
 
             var order = await _context.Orders
@@ -101,6 +87,7 @@ namespace CafeManagementMVC.Controllers
                 return RedirectToAction(nameof(Details), new { id = order.OrderId });
             }
 
+            // 4. CHUẨN NGHIỆP VỤ: Bạn làm chỗ này rất tốt, khóa quyền Hủy của nhân viên
             if (status == "Đã hủy" && !User.IsInRole("Admin"))
             {
                 TempData["ErrorMsg"] = "Bạn không có quyền hủy đơn!";
@@ -126,14 +113,13 @@ namespace CafeManagementMVC.Controllers
 
             if (status == "Đã hủy")
             {
-                order.PaidAt = null;
+                order.PaidAt = null; // Đã hủy thì clear giờ thanh toán (nếu có)
             }
 
             await _context.SaveChangesAsync();
             TempData["SuccessMsg"] = "Cập nhật trạng thái đơn hàng thành công!";
 
             return RedirectToAction(nameof(Details), new { id = order.OrderId });
-            
         }
     }
 }

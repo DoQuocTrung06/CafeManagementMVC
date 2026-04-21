@@ -68,7 +68,7 @@
                 }
                 else
                 {
-                    foreach (var item in Model)
+                    @foreach (var item in Model)
                     {
                         <tr>
                             <td class="ps-4 fw-bold">#@item.OrderId</td>
@@ -78,18 +78,16 @@
                             <td>
                                 <span class="badge
                                     @(item.Status == "Chờ xác nhận" ? "bg-warning text-dark" :
-                                                item.Status == "Đã hủy" ? "bg-danger text-white" :
-                                                "bg-success text-white")">
+                                                        item.Status == "Đã hủy" ? "bg-danger text-white" :
+                                                        "bg-success text-white")">
                                     @item.Status
                                 </span>
                             </td>
                             <td class="text-center">
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary fw-bold">
-                                        <i class="bi bi-eye"></i> Xem & Duyệt
-                                    </a>
-                                }
+                                         
+                                <a asp-action="Details" asp-route-id="@item.OrderId" class="btn btn-sm btn-outline-primary fw-bold">
+                                    <i class="bi bi-eye"></i> Xem & Duyệt
+                                </a>                                                                                                       
                             </td>
                         </tr>
                     }

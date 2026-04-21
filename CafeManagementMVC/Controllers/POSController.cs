@@ -257,12 +257,23 @@ namespace CafeManagementMVC.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                // Lấy ID đơn hàng vừa được tạo thành công
+                int orderIdToPrint = newOrder.OrderId;
+
+                // Tạo đường link dẫn tới trang In Bill
+                string printUrl = Url.Action("PrintBill", "Orders", new { id = orderIdToPrint });
+
                 // 5. Xóa giỏ hàng khỏi Session
                 HttpContext.Session.Remove("POS_Cart");
                 HttpContext.Session.Remove("SelectedTableId");
                 HttpContext.Session.Remove("SelectedTableName");
 
-                return Json(new { success = true });
+                // Trả về kèm theo URL để JavaScript mở trang in
+                return Json(new
+                {
+                    success = true,
+                    redirectUrl = printUrl
+                });
             }
             catch (Exception ex)
             {
