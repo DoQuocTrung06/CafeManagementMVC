@@ -438,12 +438,12 @@
             if (result.isConfirmed) {
                 $.post('/POS/Checkout', { tableId: selectedTableId }, function (res) {
                     if (res.success) {
-                        // 1. Bật tab in hóa đơn ngay lập tức nếu Controller có trả về URL
+                        
                         if (res.redirectUrl) {
                             window.open(res.redirectUrl, '_blank');
                         }
 
-                        // 2. Hiển thị thông báo thành công và reload lại trang POS
+                        
                         Swal.fire({
                             icon: 'success',
                             title: 'Thanh toán thành công!',

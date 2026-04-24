@@ -100,15 +100,16 @@
             <li class="@(currentController == "POS" ? "active" : "")">
                 <a href="/POS"><i class="bi bi-stars"></i> Bán Hàng (POS)</a>
             </li>
-            <li class="@(currentController == "CafeTables" ? "active" : "")">
-                <a href="/CafeTables"><i class="bi bi-ui-checks-grid"></i> Quản lý bàn</a>
-            </li>
+            
             <li class="@(currentController == "Orders" ? "active" : "")">
                 <a href="/Orders"><i class="bi bi-receipt"></i> Đơn hàng</a>
             </li>
 
             @if (User.IsInRole("1") || User.IsInRole("Admin"))
             {
+                <li class="@(currentController == "CafeTables" ? "active" : "")">
+                    <a href="/CafeTables"><i class="bi bi-ui-checks-grid"></i> Quản lý bàn</a>
+                </li>
                 <li class="@(currentController == "Categories" ? "active" : "")">
                     <a href="/Categories"><i class="bi bi-collection"></i> Danh mục</a>
                 </li>
