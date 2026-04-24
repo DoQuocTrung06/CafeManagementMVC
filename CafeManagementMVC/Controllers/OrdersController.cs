@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CafeManagementMVC.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CafeManagementMVC.Models;
 
 namespace CafeManagementMVC.Controllers
 {
+    [Authorize]
     public class OrdersController : Controller
     {
         private readonly CafeDbContext _context;
